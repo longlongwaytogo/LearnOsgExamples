@@ -1,0 +1,59 @@
+
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
+PROJECT(LearnOsgExamples)
+
+SET( include_dir "")
+
+
+
+#EXECUTABLE_OUTPUT_PATH
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
+#LIBRARY_OUTPUT_PATH
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+Find_package(OpensceneGraph 3.4.0 REQUIRED osgDB osgUtil osgViewer osg  osgText osgGA)
+
+if(OPENSCENEGRAPH_FOUND)
+	MESSAGE("is openscengraph found:${OPENSCENEGRAPH_FOUND}")
+endif()
+
+find_package(osgViewer)
+find_package(osgText)
+find_package(osgUtil)
+find_package(osgDB)
+find_package(osgGA)
+find_package(osgManipulator)
+find_package(osgVolume)
+
+INCLUDE_DIRECTORIES(${OPENSCENEGRAPH_INCLUDE_DIRS})
+LINK_DIRECTORIES(
+${OPENSCENEGRAPH_LIBRARIES_DIRS}
+${OSGDB_LIBRARIES_DIRS}
+${OSGTEXT_LIBRARIES_DIRS}
+${OSGUTIL_LIBRARIES_DIRS}
+${OSGGA_LIBRARIES_DIRS}
+${OSGMANIPULATOR_LIBRARIES_DIRS}
+${OSG_LIBRARIES}
+ )
+ 
+
+ 
+MESSAGE(${OSG_LIBRARIES})
+MESSAGE(-----------------------------------)
+MESSAGE(${OPENSCENEGRAPH_INCLUDE_DIRS})
+MESSAGE(-----------------------------------)
+MESSAGE(${OPENSCENEGRAPH_LIBRARIES})
+
+include_directories("${PROJECT_SOURCE_DIR}/include") 
+link_libraries(
+${OSG_LIBRARIES}
+${OSGVIEWER_LIBRARIES}
+${OSGDB_LIBRARIES} 
+${OSGTEXT_LIBRARIES}
+${OSGGA_LIBRARIES}
+${OSGMANIPULATOR_LIBRARIES}
+ )
+# examples
+add_subdirectory(examples)
