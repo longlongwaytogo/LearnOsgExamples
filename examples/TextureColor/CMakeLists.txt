@@ -1,0 +1,4 @@
+SET(TARGET_NAME TextureColor)
+
+ADD_EXECUTABLE(${TARGET_NAME} main.cpp)
+
