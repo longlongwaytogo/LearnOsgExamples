@@ -1,3 +1,4 @@
 add_subdirectory(test0)
 add_subdirectory(text)
 add_subdirectory(TextureColor)
+add_subdirectory(CameraTest)
