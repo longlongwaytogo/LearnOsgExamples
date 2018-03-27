@@ -65,7 +65,7 @@ public:
 
 	osg::Geometry* createGeometry()
 	{
-		std::string imageFile = "C:\\1.PNG";// "C:\\Users\\Public\\Pictures\\Sample Pictures\\Tulips.jpg";
+		std::string imageFile =  "C:\\Users\\Public\\Pictures\\Sample Pictures\\Tulips.jpg";
 
 		osg::Geometry* pGemotry = osg::createTexturedQuadGeometry(osg::Vec3(50,0,0),osg::Vec3(100,0,0),osg::Vec3(0,0,100));
 		if(!pGemotry) return nullptr;
