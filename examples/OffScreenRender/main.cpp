@@ -36,8 +36,8 @@ public:
     }
 };
 
-int nWidth = 800;
-int nHeight = 600;
+int nWidth = 2*800;
+int nHeight = 2*800;
 int main()
 {
 	osgViewer::Viewer viewer;
@@ -62,10 +62,13 @@ int main()
 	p_renderTextureColor->setInternalFormat(GL_RGBA32F_ARB); 
 	p_renderTextureColor->setSourceFormat(GL_RGBA); 
 	p_renderTextureColor->setSourceType(GL_FLOAT); 
-	p_renderTextureColor->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST); 
-	p_renderTextureColor->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST); 
+	p_renderTextureColor->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR_MIPMAP_LINEAR); 
+	p_renderTextureColor->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR); 
+	 
+
 	p_renderTextureColor->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE); 
 	p_renderTextureColor->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE); 
+	//p_renderTextureColor->generateMipmap()
 
 	// Main depth texture 
 	osg::ref_ptr<osg::Texture2D> p_renderTextureDepth = new osg::Texture2D(); 
@@ -73,8 +76,8 @@ int main()
 	p_renderTextureDepth->setSourceFormat(GL_DEPTH_COMPONENT); 
 	p_renderTextureDepth->setSourceType(GL_FLOAT); 
 	p_renderTextureDepth->setInternalFormat(GL_DEPTH_COMPONENT32F); 
-	p_renderTextureDepth->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST); 
-	p_renderTextureDepth->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST); 
+	p_renderTextureDepth->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR_MIPMAP_LINEAR); 
+	p_renderTextureDepth->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR); 
 	p_renderTextureDepth->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE); 
 	p_renderTextureDepth->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE); 
 
@@ -86,8 +89,8 @@ int main()
 	pCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	pCamera->setViewport(0,0,nWidth,nHeight);
 	pCamera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
-	pCamera->attach(osg::Camera::COLOR_BUFFER, p_renderTextureColor, 0, 0, false, 4, 4); 
-	pCamera->setRenderOrder(osg::Camera::POST_RENDER);
+	pCamera->attach(osg::Camera::COLOR_BUFFER, p_renderTextureColor, 0, 0, false, 8, 8); 
+	pCamera->setRenderOrder(osg::Camera::PRE_RENDER);
 	//pCamera->attach(osg::Camera::DEPTH_BUFFER, p_renderTextureDepth, 0, 0, false, 4, 4); 
 
 	
@@ -126,11 +129,11 @@ int main()
 		viewer.setSceneData(root);
 	}
 
-	osg::Geometry* pGeom = osg::createTexturedQuadGeometry(osg::Vec3(),osg::Vec3(100,0,0),osg::Vec3(0,0,100));
+	osg::Geometry* pGeom = osg::createTexturedQuadGeometry(osg::Vec3(),osg::Vec3(10,0,0),osg::Vec3(0,0,10));
 	osg::Geode* pGeode = new osg::Geode;
 	pGeode->addDrawable(pGeom);
 	root->addChild(pGeode);
-
+	pGeom->getOrCreateStateSet()->setTextureAttributeAndModes(0,p_renderTextureColor,osg::StateAttribute::ON);
 	viewer.setRealizeOperation(new SysncOperation());
 	viewer.addEventHandler(new osgViewer::StatsHandler());
 	//viewer.setCameraManipulator(new osgGA::TrackballManipulator());
