@@ -61,162 +61,68 @@ bool CHUD_viewPoint::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAda
            //主相机
 
            osg::ref_ptr<osg::Camera> cameraMaster = viewer->getCamera();
-
- 
-
            osg::Matrix mvpw = cameraMaster->getViewMatrix() * cameraMaster->getProjectionMatrix();
-
            if ( cameraMaster->getViewport()) mvpw.postMult( cameraMaster->getViewport()->computeWindowMatrix());
-
- 
-
            osg::Matrix _inverseMVPW;
-
            _inverseMVPW.invert( mvpw);
-
- 
-
            osg::Vec3d nearPoint = osg::Vec3d( ea.getX(), ea.getY(), 0.0)* _inverseMVPW;//透视投影中Znear平面的交点
-
            osg::Vec3d farPoint = osg::Vec3d( ea.getX(), ea.getY(), 1.0)* _inverseMVPW;//透视投影中Zfar平面的交点
-
- 
-
            osg::Vec3 vPosEye, vCenter, vUp;
-
            cameraMaster->getViewMatrixAsLookAt( vPosEye, vCenter, vUp);//获取视点信息
-
- 
-
- 
-
            osg::Matrix _inverseMV;
-
            _inverseMV.invert( cameraMaster->getViewMatrix());
-
            osg::Vec3 ptEye= osg::Vec3(  0, 0, 0) * _inverseMV;//获取视点坐标
-
            osg::Vec3d deltaEye= ptEye- vPosEye;
-
            if ( deltaEye.length()< 1e-8)
-
            {
-
               cout<< "yes,eye\n";
-
            }
-
            else
-
            {
-
               cout<< "no,eye\n";
-
            }
-
- 
-
            osg::Vec3d dir1= farPoint- nearPoint;
-
            dir1.normalize();
-
- 
-
            osg::Vec3d dir2= farPoint- vPosEye;
-
            dir2.normalize();
-
- 
-
            osg::Vec3d delta= dir1- dir2;
-
- 
-
            //看视点、Znear平面的交点、Zfar平面的交点是否在同一直线上。经验证，确定在同一直线上
-
            if ( delta.length()< 1e-8)
-
            {
-
               cout<< "yes,line\n";
-
            }
-
            else
-
            {
-
               cout<< "no,line\n";
-
            }
-
- 
-
- 
 
            osg::Geode* geode= new osg::Geode();
-
            osg::Geometry* pyramidGeometry = new osg::Geometry();
-
- 
-
            geode->addDrawable( pyramidGeometry);
-
- 
-
            osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
-
            pyramidVertices->push_back( nearPoint);
-
            pyramidVertices->push_back( farPoint);
-
-   
-
            pyramidGeometry->setVertexArray( pyramidVertices );
-
- 
-
            //颜色
-
            osg::Vec4Array* colors = new osg::Vec4Array;
-
            colors->push_back( osg::Vec4(  1.0f, 0.0f, 0.0f, 1.0f) );//红色
-
            pyramidGeometry->setColorArray( colors);
-
            pyramidGeometry->setColorBinding( osg::Geometry::BIND_OVERALL);
 
-          
-
            //红点表示透视投影中Znear平面的交点
-
           pyramidGeometry->addPrimitiveSet(  new osg::DrawArrays( osg::PrimitiveSet::POINTS, 0, 1/*3*/));
-
            //红线表示鼠标点击的线，其起点为Znear平面交点，终点为Zfar平面交点。
-
            pyramidGeometry->addPrimitiveSet(  new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, 2));/**/
 
- 
-
            ////设置线宽
-
            //osg::ref_ptr <osg::LineWidth> LineSize = new osg::LineWidth;
-
            //LineSize ->setWidth( 12.0) ;      
-
            //geode->getOrCreateStateSet()->setAttributeAndModes( LineSize.get (),osg::StateAttribute::ON);
-
- 
-
            //设置点大小
 
            osg::ref_ptr <osg::Point> ptSize = new osg::Point;
-
            ptSize->setSize( 12.0) ;      
-
            geode->getOrCreateStateSet()->setAttributeAndModes( ptSize.get (),osg::StateAttribute::ON);          
-
-          
 
            /*当只有一个点时，包围球半径为，所以可能看不到这个点，故需要重新设置包围球大小，可把包围球半径设大点。
 
@@ -231,30 +137,16 @@ bool CHUD_viewPoint::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAda
            osg::BoundingSphere bs( ptCnt, 100);
 
            geode->setInitialBound( bs);
-
- 
-
            g_grpMouse->removeChildren( 0, g_grpMouse->getNumChildren());
-
            g_grpMouse->addChild( geode);
 
- 
-
            //获取从根节点到当前节点的路径向量
-
            osg::NodePathList parentNodePaths = geode->getParentalNodePaths();
-
            if ( !parentNodePaths.empty())
-
            {
-
               osg::Matrixd mt= computeWorldToLocal( parentNodePaths[ 0]);
-
- 
-
            }
 
- 
 
            ////求交
 
@@ -508,7 +400,7 @@ int main( int argc, char **argv )
 
  
 
-    osg::ref_ptr< osg::Node> model = osgDB::readNodeFile("fountain.osg");// glider nathan
+    osg::ref_ptr< osg::Node> model = osgDB::readNodeFile("fountain.osgt");// glider nathan
 
    
 
