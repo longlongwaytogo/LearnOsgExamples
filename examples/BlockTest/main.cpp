@@ -73,3 +73,66 @@ void main()
 			
 	}
 }
+
+// wangruiµÄosgblockÀý×Ó
+
+//class TestThread :public OpenThreads::Thread
+//{
+//
+//public:
+//	TestThread() :_done(false), _count(0)
+//	{}
+//	~TestThread()
+//	{
+//		cancel();
+//	}
+//
+//	void block() { _operator.block();}
+//
+//	virtual int cancel() 
+//	{
+//
+//		_operator.release();
+//		_done = true;
+//		while(isRunning())
+//			OpenThreads::Thread::YieldCurrentThread();
+//		return 0;
+//
+//	}
+//	virtual void run()
+//	{
+//		do 
+//		{
+//			std::cout<< "(" << _count << ")" ;
+//			++ _count;
+//
+//			if(_count == 10)
+//			{
+//				_operator.release();
+//				_operator.reset();
+//				_operator.block();
+//
+//			}
+//			OpenThreads::Thread::microSleep(150000L);
+//		} while (!_done);
+//	}
+//
+//protected:
+//	bool _done;
+//	unsigned long _count;
+//	OpenThreads::Block _operator;
+//};
+//
+//
+//int main()
+//{
+//
+//	TestThread t;
+//	t.start();
+//	t.block();
+//	std::cout<< "(Main)" << std::endl;
+//
+//	getchar();
+//	t.cancel();
+//	return 0;
+//}
