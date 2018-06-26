@@ -13,40 +13,47 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #LIBRARY_OUTPUT_PATH
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-Find_package(OpensceneGraph 3.4.0 REQUIRED osgDB osgUtil osgViewer osg  osgText osgGA)
+FIND_PACKAGE(OpensceneGraph 3.4.0 REQUIRED openThreads osgDB osgUtil osgViewer osg  osgText osgGA)
 
-if(OPENSCENEGRAPH_FOUND)
+IF(OPENSCENEGRAPH_FOUND)
 	MESSAGE("is openscengraph found:${OPENSCENEGRAPH_FOUND}")
-endif()
+ENDIF()
 
-find_package(osgViewer)
-find_package(osgText)
-find_package(osgUtil)
-find_package(osgDB)
-find_package(osgGA)
-find_package(osgManipulator)
-find_package(osgVolume)
+ find_package(osgViewer)
+ find_package(osgText)
+ find_package(osgUtil)
+ find_package(osgDB)
+ find_package(osgGA)
+ find_package(osgManipulator)
+ find_package(osgVolume)
+ find_package(openThreads)
 
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include") 
 INCLUDE_DIRECTORIES(${OPENSCENEGRAPH_INCLUDE_DIRS})
-LINK_DIRECTORIES(
-${OPENSCENEGRAPH_LIBRARIES_DIRS}
-${OSGDB_LIBRARIES_DIRS}
-${OSGTEXT_LIBRARIES_DIRS}
-${OSGUTIL_LIBRARIES_DIRS}
-${OSGGA_LIBRARIES_DIRS}
-${OSGMANIPULATOR_LIBRARIES_DIRS}
-${OSG_LIBRARIES}
- )
- 
 
- 
+ LINK_DIRECTORIES(
+	${OPENSCENEGRAPH_LIBRARIES_DIRS}
+	${OSGDB_LIBRARIES_DIRS}
+	${OSGTEXT_LIBRARIES_DIRS}
+	${OSGUTIL_LIBRARIES_DIRS}
+	${OSGGA_LIBRARIES_DIRS}
+	${OSGMANIPULATOR_LIBRARIES_DIRS}
+	${OSG_LIBRARIES_DIRS}
+	${OPENTHREADS_LIBRARIES_DIRS}
+	 )
 MESSAGE(${OSG_LIBRARIES})
 MESSAGE(-----------------------------------)
 MESSAGE(${OPENSCENEGRAPH_INCLUDE_DIRS})
 MESSAGE(-----------------------------------)
 MESSAGE(${OPENSCENEGRAPH_LIBRARIES})
+MESSAGE(-----------------------------------)
+# MESSAGE( ${OPENTHREADS_LIBRARIES_DIRS} )
 
-include_directories("${PROJECT_SOURCE_DIR}/include") 
+MESSAGE("LINK_LIB")
+MESSAGE(${OPENSCENEGRAPH_LIBRARIES})
+
+LINK_LIBRARIES(${OPENSCENEGRAPH_LIBRARIES})
+
 link_libraries(
 ${OSG_LIBRARIES}
 ${OSGVIEWER_LIBRARIES}
@@ -55,6 +62,12 @@ ${OSGUTIL_LIBRARIES}
 ${OSGTEXT_LIBRARIES}
 ${OSGGA_LIBRARIES}
 ${OSGMANIPULATOR_LIBRARIES}
+${OPENTHREADS_LIBRARIES}
  )
+
+
 # examples
-add_subdirectory(examples)
+ADD_SUBDIRECTORY(examples)
+
+
+
