@@ -1,0 +1,2 @@
+add_executable(osg_deferred_shading main.cpp)
+#TARGET_LINK_LIBRARIES(osg_deferred_shading osgshadow)

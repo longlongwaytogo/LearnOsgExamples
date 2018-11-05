@@ -11,6 +11,8 @@ add_subdirectory(BarrierTest)
 add_subdirectory(MutexTest)
 add_subdirectory(GetThreadTest)
 add_subdirectory(BlockCountTest)
+add_subdirectory(Drawground)
+ADD_SUBDIRECTORY(kornerr-osg-deferred-shading)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 

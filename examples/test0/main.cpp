@@ -2,6 +2,9 @@
 #include <osgViewer/viewer>
 #include <osg/Node>
 #include <osgDB/ReadFile>
+
+
+
 int main()
 {
 	osgViewer::Viewer viewer;
