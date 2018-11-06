@@ -10,6 +10,9 @@
 #include <osg/Geode>
 #include <osg/array>
 #include <osg/Hint>
+#include <osg/BlendColor>
+#include <osg/BlendEquation>
+#include <osg/BlendFunc>
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
 #include <osgDB/FileUtils>
@@ -23,7 +26,9 @@
 // dimessionY: Y方向上细分多少个点
 // width:  X方总向长度
 // height: Y方向总长度
-osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80, float height = 80)
+// bCoordinateAllMesh 将整个图片映射到mesh上(true)，还是映射到每个单元中(false)
+// bFill：是否使用多边形填充（true),line模式（false)
+osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80, float height = 80,bool bCoordinateAllMesh = true,bool bFill = true)
 {
     // 网格绘制，按照列序进行绘制，每一列为一组Quad_Strip,然后插入重启绘制标识符。
 	float dx = width / (dimensionX - 1); // x方向，每段线的长度
@@ -63,8 +68,17 @@ osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80,
             osg::Vec3 pos1(x1, y1, 0);
             vertices->push_back(pos1);
             
-            osg::Vec2 coord(float(i)/(dimensionX - 1),float(j)/(dimensionY - 1));
-            coords->push_back(coord);
+           
+            if(bCoordinateAllMesh)
+            {
+                osg::Vec2 coord(float(i)/(dimensionX - 1),float(j)/(dimensionY - 1));
+                coords->push_back(coord);
+            }
+            else
+            {
+                osg::Vec2 coord(i,j);
+                coords->push_back(coord);
+            }
         }
     }
     vertices->push_back(osg::Vec3(endX,endY,0));// 多存储一个顶点，用作因使用图元重启，而导致计算包围盒访问越界。
@@ -74,6 +88,13 @@ osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80,
     {
         (*indices)[j*2] = j;
         (*indices)[j*2+1] = dimensionY+j;
+        
+        // 设置纹理坐标
+        if(!bCoordinateAllMesh)
+        {
+             
+           
+        }
       
         std::cout <<  j*2 <<"," <<  j*2+1 << "-->"<< j <<"," << dimensionY +j <<std::endl;
     }
@@ -103,7 +124,7 @@ osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80,
 	geometry->addPrimitiveSet(indices);
     //geometry->addPrimitiveSet(new osg::DrawArrays(GL_QUAD_STRIP,0,dimensionX * dimensionY));
 	geometry->setVertexArray(vertices);
-	geometry->setTexCoordArray(0, coords, osg::Array::BIND_PER_PRIMITIVE_SET);
+	geometry->setTexCoordArray(0, coords);
 
 	normals->push_back(osg::Vec3d(0, 0, 1));
 	geometry->setNormalArray(normals, osg::Array::BIND_PER_PRIMITIVE_SET);
@@ -113,17 +134,36 @@ osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80,
 	stateset->setAttributeAndModes(pm, osg::StateAttribute::ON);
 	stateset->setAttributeAndModes(new osg::LineWidth(1.5f), osg::StateAttribute::ON);
 
-	stateset->setMode(GL_LINE_SMOOTH, osg::StateAttribute::ON);
-	stateset->setMode(GL_POLYGON_SMOOTH, osg::StateAttribute::ON);
+    if(bFill)
+    {
+	
+	    stateset->setMode(GL_POLYGON_SMOOTH, osg::StateAttribute::ON);
+        stateset->setAttributeAndModes(new osg::Hint(GL_POLYGON_SMOOTH_HINT, GL_NICEST), osg::StateAttribute::ON);
+        // 开启融合并启用抗锯齿，但会出现网格线，所以先屏幕融合
+        // stateset->setMode(GL_BLEND,osg::StateAttribute::ON);
+        // stateset->setAttributeAndModes(new osg::BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA),osg::StateAttribute::ON);
+    }
+    else
+    {
+        stateset->setMode(GL_LINE_SMOOTH, osg::StateAttribute::ON);
+        stateset->setAttributeAndModes(new osg::Hint(GL_LINE_SMOOTH_HINT, GL_NICEST), osg::StateAttribute::ON);
+        stateset->setMode(GL_BLEND,osg::StateAttribute::ON);
+        stateset->setAttributeAndModes(new osg::BlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA),osg::StateAttribute::ON);
+    }
 
-	stateset->setAttributeAndModes(new osg::Hint(GL_LINE_SMOOTH_HINT, GL_NICEST), osg::StateAttribute::ON);
-	stateset->setAttributeAndModes(new osg::Hint(GL_POLYGON_SMOOTH_HINT, GL_NICEST), osg::StateAttribute::ON);
+    stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
     stateset->setAttributeAndModes(new osg::PrimitiveRestartIndex(dimensionX * dimensionY), osg::StateAttribute::ON);
     stateset->setMode(GL_PRIMITIVE_RESTART, osg::StateAttribute::ON);
+
 	std::string fileName = "Images/primitives.gif";
 	osg::Image* image = osgDB::readImageFile(fileName);
 	osg::Texture2D* tex = new osg::Texture2D;
+    tex->setFilter(osg::Texture::MIN_FILTER,osg::Texture::NEAREST);
+    tex->setFilter(osg::Texture::MAG_FILTER,osg::Texture::NEAREST);
+    tex->setWrap(osg::Texture::WRAP_S,osg::Texture::REPEAT);
+    tex->setWrap(osg::Texture::WRAP_T,osg::Texture::REPEAT);
+
 	tex->setImage(image);
 	stateset->setTextureAttributeAndModes(0, tex,osg::StateAttribute::ON);
 	geometry->setStateSet(stateset);
@@ -137,7 +177,7 @@ osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80,
 class keyBoardHandler :public osgGA::GUIEventHandler
 {
 public:
-    keyBoardHandler(osg::Group* groundRoot):m_ground(groundRoot),m_dimessionX(2),m_dimessionY(2)
+    keyBoardHandler(osg::Group* groundRoot):m_ground(groundRoot),m_dimessionX(2),m_dimessionY(2),m_bCoordinateAllMesh(false)
     {
     }
 
@@ -151,7 +191,6 @@ public:
                 osg::Geode* geode = m_ground->getChild(0)->asGeode();
                 if(geode)
                 {
-
                     osg::Geometry* geom = geode->getDrawable(0)->asGeometry();
                     if(geom)
                     {
@@ -177,42 +216,52 @@ public:
             else if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Up)
             {
                 m_dimessionY++;
-                ChangeLines(m_dimessionX,m_dimessionY);
+                ChangeLines(m_dimessionX,m_dimessionY,m_bCoordinateAllMesh);
+           
                 return true;
             }
             else if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Down)
             {
                 m_dimessionY--;
-                ChangeLines(m_dimessionX,m_dimessionY);
+                ChangeLines(m_dimessionX,m_dimessionY,m_bCoordinateAllMesh);
+          
                 return true;
 
             }
             else if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Left)
             {
                 m_dimessionX++;
-                ChangeLines(m_dimessionX,m_dimessionY);
+                ChangeLines(m_dimessionX,m_dimessionY,m_bCoordinateAllMesh);
+           
                 return true;
             }
             else if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Right)
             {
                 m_dimessionX--;
-                ChangeLines(m_dimessionX,m_dimessionY);
+                ChangeLines(m_dimessionX,m_dimessionY,m_bCoordinateAllMesh);
+            }
+            
+            else if(ea.getKey() == osgGA::GUIEventAdapter::KEY_A)
+            {
+                m_bCoordinateAllMesh = !m_bCoordinateAllMesh;
+                ChangeLines(m_dimessionX,m_dimessionY,m_bCoordinateAllMesh);
             }
         }
         return false;
     }
 
-    void ChangeLines(int x, int y)
+    void ChangeLines(int x, int y,bool bCoordinateAllMesh = false)
     {
         if(x <2) x = 2;
         if(y < 2) y  = 2;
         m_ground->removeChild(0,1);
-        m_ground->addChild(CreateGround(x,y));
+        m_ground->addChild(CreateGround(x,y,80,80,bCoordinateAllMesh));
     }
 private:
     osg::ref_ptr<osg::Group> m_ground;
     int m_dimessionX;
     int m_dimessionY;
+    bool m_bCoordinateAllMesh;
 };
 
 void main()
