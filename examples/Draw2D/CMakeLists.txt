@@ -1,0 +1,1 @@
+add_executable(Draw2D main.cpp)

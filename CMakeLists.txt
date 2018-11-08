@@ -18,7 +18,6 @@ FIND_PACKAGE(OpensceneGraph 3.4.0 REQUIRED openThreads osgDB osgUtil osgViewer o
 IF(OPENSCENEGRAPH_FOUND)
 	MESSAGE("is openscengraph found:${OPENSCENEGRAPH_FOUND}")
 ENDIF()
-
  find_package(osgViewer)
  find_package(osgText)
  find_package(osgUtil)

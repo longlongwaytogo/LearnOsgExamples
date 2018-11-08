@@ -156,13 +156,24 @@ osg::Node* CreateGround(int dimensionX = 5, int dimensionY= 5, float width = 80,
     stateset->setAttributeAndModes(new osg::PrimitiveRestartIndex(dimensionX * dimensionY), osg::StateAttribute::ON);
     stateset->setMode(GL_PRIMITIVE_RESTART, osg::StateAttribute::ON);
 
-	std::string fileName = "Images/primitives.gif";
+	//std::string fileName = "Images/primitives.gif";
+    std::string fileName = "E:\\project\\osg\\OSG.ms\\OsgEditor\\Data\\textures\\ground3.jpg";
 	osg::Image* image = osgDB::readImageFile(fileName);
 	osg::Texture2D* tex = new osg::Texture2D;
-    tex->setFilter(osg::Texture::MIN_FILTER,osg::Texture::NEAREST);
-    tex->setFilter(osg::Texture::MAG_FILTER,osg::Texture::NEAREST);
+    	/* mipmap 使用说明
+	其中GL_NEAREST_MIPMAP_NEAAREST具有很好的性能，也能够解决闪烁的问题，但在视觉效果上会比较差。
+	其中GL_LINEAR_MIPMAP_NEAREST常用于游戏加速，使用了质量较高的线性过滤，和快速的选择的方式(最邻近方式）。
+	使用最邻近的方式作为mipmap选择器的效果依然不能令人满意。从某一个角度去看，常常可以看到物体表面从一个mip层
+	到另一个mip层的转变。GL_LINEAR_MIPMAP_LINEAR和GL_NEAREST_MIPMAP_LINEAR过滤器在mip层之间执行一些额外的线性插值，
+	以消除不同层之间的变换痕迹，但也需要一些额外的性能开销。GL_LINEAR_MIPMAP_LINEAR具有最高的精度。
+	https://blog.csdn.net/yiting52/article/details/52401133
+	*/
+	// osg设置带有MipMap的滤波选择器模式，对于没有mipmap的纹理，进行自动生成mipmap
+    tex->setFilter(osg::Texture::MIN_FILTER,osg::Texture::LINEAR_MIPMAP_NEAREST);
+    tex->setFilter(osg::Texture::MAG_FILTER,osg::Texture::LINEAR_MIPMAP_NEAREST);
     tex->setWrap(osg::Texture::WRAP_S,osg::Texture::REPEAT);
     tex->setWrap(osg::Texture::WRAP_T,osg::Texture::REPEAT);
+   
 
 	tex->setImage(image);
 	stateset->setTextureAttributeAndModes(0, tex,osg::StateAttribute::ON);
