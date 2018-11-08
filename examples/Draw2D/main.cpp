@@ -179,7 +179,7 @@ void main()
  
     // 使用回调方式创建的坐标系
     root->addChild(createHudCamera(&viewer));
-    root->addChild();
+    root->addChild(cow);
 
     viewer.setSceneData(root);
     viewer.realize();
