@@ -12,6 +12,7 @@
 #include <osgShadow/SoftShadowMap>
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgUtil/TangentSpaceGenerator>
 
 osg::TextureRectangle *createFloatTextureRectangle(int textureSize)
 {
@@ -46,6 +47,28 @@ osg::ref_ptr<osg::LightSource> createLight(const osg::Vec3 &pos)
     light->getLight()->setDiffuse(osg::Vec4(0.8, 0.8, 0.8, 1));
     return light;
 }
+class CreateTangentSpace : public osg::NodeVisitor
+{
+public:
+    CreateTangentSpace() : NodeVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN), tsg(new osgUtil::TangentSpaceGenerator) {}
+    virtual void apply(osg::Geode& geode)
+    {
+        for (unsigned int i = 0; i < geode.getNumDrawables(); ++i)
+        {
+            osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode.getDrawable(i));
+            if (geo != NULL)
+            {
+                // assume the texture coordinate for normal maps is stored in unit #0
+                tsg->generate(geo, 0);
+                // pass2.vert expects the tangent array to be stored inside gl_MultiTexCoord1
+                geo->setTexCoordArray(1, tsg->getTangentArray());
+            }
+        }
+        traverse(geode);
+    }
+private:
+    osg::ref_ptr<osgUtil::TangentSpaceGenerator> tsg;
+};
 
 Pipeline createPipelineEffectCompositor(
         osg::ref_ptr<osg::Group> scene,
@@ -98,6 +121,8 @@ Pipeline createPipelinePlainOSG(
     osg::ref_ptr<osg::Camera> pass1 =
         createRTTCamera(osg::Camera::COLOR_BUFFER, p.pass1Shadows);
     pass1->addChild(shadowedScene.get());
+    CreateTangentSpace cts;
+    scene->accept(cts);
     // Pass 2 (positions, normals, colors).
     p.pass2Positions = createFloatTextureRectangle(p.textureSize);
     p.pass2Normals   = createFloatTextureRectangle(p.textureSize);
@@ -185,7 +210,7 @@ osg::ref_ptr<osg::Group> createSceneRoom()
     // Torus.
     osg::ref_ptr<osg::MatrixTransform> torus = new osg::MatrixTransform;
     std::string torusPath = Utils::Helper::Ins().getMediaPath() + "osg_deferred_shading/torus.osgt";
-    osg::ref_ptr<osg::Node> torusModel = osgDB::readNodeFile(torusPath);
+    osg::ref_ptr<osg::Node> torusModel = osgDB::readRefNodeFile(torusPath);
     torus->addChild(torusModel);
     setAnimationPath(torus, osg::Vec3(0, 0, 15), 6, 16);
     // Torus2.
@@ -246,6 +271,7 @@ osg::Texture2D *createTexture(const std::string &fileName)
     texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
     texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
     texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+    texture->setMaxAnisotropy(16.0f);
     return texture.release();
 }
 

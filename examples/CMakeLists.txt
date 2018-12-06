@@ -14,6 +14,8 @@ add_subdirectory(BlockCountTest)
 add_subdirectory(Drawground)
 add_subdirectory(geometryShader)
 ADD_SUBDIRECTORY(kornerr-osg-deferred-shading)
+add_subdirectory(deferredShading)
+add_subdirectory(EffectCompositor)
 add_subdirectory(Draw2D)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)

@@ -3,3 +3,4 @@ add_executable(osg_deferred_shading main.cpp)
 
 
 # https://bitbucket.org/kornerr/osg-deferred-shading/downloads/
+# ¼´£ºOpenSceneGraph osgdeferred Àý×Ó
