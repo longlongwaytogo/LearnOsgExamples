@@ -1,0 +1,1 @@
+add_executable(osgsimplegl3 osgsimplegl3.cpp)

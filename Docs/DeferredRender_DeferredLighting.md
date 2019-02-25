@@ -1,0 +1,25 @@
+# Deferred Shading VS Deferred Lighting
+
+鉴于传统的Forward Rendering对于多光源渲染时的低效问题，各种Deferred Rendering的方法被提出并且广泛使用。比如Deferred Shading以及其之后的Deferred Lighting。Deferred方法相对于传统Forward Rendering最主要区别都是提高了对多光源渲染时的效率，它是是将光源的计算转到屏幕空间来进行，进而不浪费无效的光源着色。Deferred Rendering的方法已经已经成为现在游戏引擎的主流。但是，Deferred Shading与Deferred Lighting又是有所不同的：Deferred Shadign是一股脑儿将所有的Shading全部转到Deferred阶段进行，而Deferred Lighting 则是有选择地只将Lighting转到deferred中进行，两种方法的不同也就导致了算法的不同的特点及各自的优劣。关于这一点自己以前一直搞的不是很清楚，最近又搜罗资料学习了一会，这里小总结一下。
+
+传统的Forward Rendering在外理多光源时基本上需要一个与光源数量及待绘制物体数量相关密切相关的复杂程度，这样就导致效率很低。而Deferred Rendering就是将这种与光源相关的计算转到屏幕空间来进行，这样最大程度上减少无关的计算浪费。为了将传统的Forward Rendering转移到Deferred上进行操作需要对光照方程进行分析或改动，并生成相应所需的辅助Buffer来完成最终的着色操作。
+
+Deferred Lighting
+由DS中的G-Buffer可以看出，其中的有两个信息需要占用相应的RT空间，Diffuse albedo和Specular albedo，而Defferd Lighting的改进就是将这两部分从DS的G-Buffer中去掉，而只在Deferred阶段做相应的光照计算，Diffuse与Specular分量影响的计算则是在最终的Shading阶段来进行，因而，DL相对于DS其实增加了一个最终Shading的阶段。DL中之所以能将光照与最终的着色分解需要对原始的着色方程进行如下述调整：
+
+DS vs DL
+通过上述描述基本上可以看出DS与DL的主要区别：
+
+DS需要更大的G-Buffer来完成对Deferred阶段的前期准备，而且需要硬件有MRT的支持，可以说是硬件要求更高。
+DL需要两个几何体元的绘制过程来来完成整个渲染操作：G-Pass与Shading pass。这个既是劣势也是优势：由于DS中的Deffered阶段是在完全基本G-Buffer的屏幕空间进行，这也导致了物体材质信息的缺失，这样在处理多变的渲染风格时就需要额外的操作；而DL却可以在Shading阶段得到物体的村质信息进而使这一问题的处理变得较简单。
+两种方法的上述操作均是只能完成对不透明物体的渲染，而透明或半透明的物体则需额外的传统Pass来完成。
+关于两种方法更加详细的对比，这里有篇文章做了具体的分析，而且有Wolfgang参与到其中的讨论，可以看看（但是感觉作者可能对DL存在偏见）。
+--------------------- 
+作者：bugrunner 
+来源：CSDN 
+原文：https://blog.csdn.net/bugrunner/article/details/7436600 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+ 
+
+ 

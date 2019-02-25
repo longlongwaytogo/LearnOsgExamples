@@ -1,0 +1,1 @@
+add_executable(osgOpenGL3Test main.cpp)
