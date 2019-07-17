@@ -5,7 +5,7 @@
 #include <osg/Geode>
 #include <osgDB/ReadFile>
 
-#define  USE_EFFECT_COMPOSITOR
+
 #ifdef USE_EFFECT_COMPOSITOR
 //#include <osgFX/EffectCompositor>
 #include "../EffectCompositor/EffectCompositor"

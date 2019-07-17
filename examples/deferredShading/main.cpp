@@ -76,8 +76,9 @@
                                 osgViewer::ScreenCaptureHandler::WriteToFile::OVERWRITE)));
                                 
     viewer.getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+    viewer.addEventHandler(new osgViewer::StatsHandler);
     viewer.setSceneData(p._graph.get());
-    viewer.setRunMaxFrameRate(40);
+    viewer.setRunMaxFrameRate(50);
     viewer.setUpViewInWindow(300,100,800,600);
 
      return viewer.run();

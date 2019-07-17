@@ -10,7 +10,7 @@
 #include <osg/LightSource>
 #include <osgShadow/ShadowedScene>
 
- 
+ #define  USE_EFFECT_COMPOSITOR
    
     struct Pipeline
     {
