@@ -1,0 +1,42 @@
+
+[ShadowMap_Unity](https://github.com/Richbabe/ShadowMap_Unity)
+http://timjones.io/blog/archive/2015/09/02/parsing-direct3d-shader-bytecode
+http://thedemonthrone.ca/
+https://docs.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
+https://developer.download.nvidia.cn/SDK/10.5/opengl/src/cascaded_shadow_maps/doc/cascaded_shadow_maps.pdf
+https://blog.csdn.net/BugRunner/article/details/7366762
+https://blog.csdn.net/ronintao/article/details/51649664
+
+[opengl shadowmap]https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+
+https://zhuanlan.zhihu.com/p/45673049 // https://github.com/chenyong2github/CascadedShadowMapping
+
+[nv shadowmap](https://github.com/GKR/NvidiaCascadedShadowMapsGLM)
+[Model OpenGL tutorial49](http://ogldev.atspace.co.uk/www/tutorial49/tutorial49.html)
+
+[OpenGL.Tutorial16_ShadowMapping
+](https://www.cnblogs.com/cppskill/p/10793267.html)
+
+[opengl tutorial](http://www.opengl-tutorial.org/cn/intermediate-tutorials/tutorial-16-shadow-mapping/)
+[](https://blog.csdn.net/ronintao/article/details/51649664)
+
+[webgl csm](https://promethe.io/wp-content/uploads/2015/03/09/minko-example-shadow-mapping.html)
+[webgl csm]https://promethe.io/2015/01/21/exponential-cascaded-shadow-mapping-with-webgl/
+
+[各种shadowmap名称](https://blog.csdn.net/pizi0475/article/details/49779039)
+[各种Soft Shadow Mapping算法及推导过程](https://blog.csdn.net/butwang/article/details/6168055)
+
+[实时渲染中的软阴影技术](https://zhuanlan.zhihu.com/p/26853641)
+[ESM](http://www.klayge.org/2013/10/07/%E5%88%87%E6%8D%A2%E5%88%B0esm/)
+
+
+array:发表于 2014-6-25 17:36:59 | 只看该作者
+还有shadow map是目前唯一可以做到大规模阴影实现的方法，shadow volume在大场景中就是渣渣。。。
+CryEngine就是标准的CSM + ESM的方案
+http://bbs.osgchina.org/forum.php?mod=viewthread&tid=13977
+
+您目前的理解可能还比较浅，不妨阅读一些有关shadow map算法的文献，我推荐原版的《Realtime Shadows》一书。中文版虽然是我翻译的，但是能力和时间都有限，因此质量不是很好
+
+csm（也就是您说的pssm，后者只是csm的一个变种）算法的意义是改善了阴影采样时的信号损失，但是它对于aliasing的问题是毫无贡献的。
+
+后处理的filter比如人们最常用的pcf，还有改进的pcss；预处理的方法就是划时代的vsm，以及后继的esm等。

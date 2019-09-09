@@ -32,8 +32,8 @@ int main()
 		osg::Matrix ratate = osg::Matrix::rotate(osg::DegreesToRadians(angle),osg::Vec3(1,0,0));
 		//pCamera->setViewMatrix( transMat * ratate);
 
-		//pCamera->setViewMatrix(osg::Matrix::inverse( osg::Matrix::translate(osg::Vec3(0,0,18)) * osg::Matrix::rotate(osg::DegreesToRadians(angle),osg::Vec3(1,0,0) ) ) );
-		pCamera->setViewMatrix(osg::Matrix::inverse( osg::Matrix::rotate(osg::DegreesToRadians(angle),osg::Vec3(1,0,0) ) *  osg::Matrix::translate(osg::Vec3(0,0,18))  ) );
+		pCamera->setViewMatrix(osg::Matrix::inverse( osg::Matrix::translate(osg::Vec3(0,0,18)) * osg::Matrix::rotate(osg::DegreesToRadians(angle),osg::Vec3(1,0,0) ) ) );
+		//pCamera->setViewMatrix(osg::Matrix::inverse( osg::Matrix::rotate(osg::DegreesToRadians(angle),osg::Vec3(1,0,0) ) *  osg::Matrix::translate(osg::Vec3(0,0,18))  ) );
 		
 		angle += 0.5;
 		viewer.frame();

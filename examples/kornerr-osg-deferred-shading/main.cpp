@@ -6,6 +6,8 @@
 #include <osg/PolygonMode>
 #include <osgDB/ReadFile>
 //#define USE_EFFECT_COMPOSITOR
+
+#define NO_DEFERRED_SHADING 1
 #ifdef USE_EFFECT_COMPOSITOR
     #include <osgFX/EffectCompositor>
 #endif
@@ -195,6 +197,29 @@ osg::Camera *createRTTCamera(osg::Camera::BufferComponent buffer,
     return camera.release();
 }
 
+
+static char  room_vertex[] = 
+{
+    
+ 
+"void main() \n"
+"{ \n"
+    "gl_Position = ftransform(); \n"
+    " gl_TexCoord[0] = gl_MultiTexCoord0; \n"
+" } \n"
+};
+
+static char room_frag[] = 
+{
+    "varying vec2 coord; \n"
+    "uniform sampler2D diffMap; \n"
+    "uniform sampler2D bumpMap; \n"
+
+    "void main() { \n"
+   " gl_FragColor = texture2D(diffMap,gl_TexCoord[0]); \n"
+ // "gl_FragColor = vec4(1,0,0,1.0); \n"
+    " } \n"
+};
 osg::ref_ptr<osg::Group> createSceneRoom()
 {
     // Room.
@@ -231,11 +256,24 @@ osg::ref_ptr<osg::Group> createSceneRoom()
     // Alter room's bump'ness.
     osg::StateSet *ss = smallRoom->getOrCreateStateSet();
     std::string wallPath = Utils::Helper::Ins().getMediaPath() +"osg_deferred_shading/wall.png";
+    std::string wallBumpPath = Utils::Helper::Ins().getMediaPath() + "osg_deferred_shading/wall_bump.png";
     ss->setTextureAttributeAndModes(0, createTexture(wallPath));
-    //ss->setTextureAttributeAndModes(1, createTexture("wall_bump.png"));
+    ss->setTextureAttributeAndModes(1, createTexture(wallBumpPath));
     ss->addUniform(new osg::Uniform("diffMap", 0));
-    //ss->addUniform(new osg::Uniform("bumpMap", 1));
-    ss->addUniform(new osg::Uniform("useBumpMap", 0));
+    ss->addUniform(new osg::Uniform("bumpMap", 1));
+   
+
+    osg::StateSet* ss1 = room->getOrCreateStateSet();
+    ss1->setTextureAttributeAndModes(0, createTexture(wallPath));
+    ss1->setTextureAttributeAndModes(1, createTexture(wallBumpPath));
+    ss1->addUniform(new osg::Uniform("diffMap", 0));
+    ss1->addUniform(new osg::Uniform("bumpMap", 1));
+    osg::ref_ptr<osg::Program> program = new osg::Program;
+    program->addShader(new osg::Shader(osg::Shader::VERTEX, room_vertex));
+    program->addShader(new osg::Shader(osg::Shader::FRAGMENT, room_frag));
+    ss1->setAttributeAndModes(program.get());
+
+    //ss->addUniform(new osg::Uniform("useBumpMap", 0));
     return scene;
 }
 
@@ -327,6 +365,128 @@ osg::ref_ptr<osg::StateSet> setShaderProgram(osg::ref_ptr<osg::Camera> pass,
     return ss;
 }
 
+static const char fragmentSoftShaderSource_noBaseTexture[] =
+    "#define SAMPLECOUNT 64 \n"
+    "#define SAMPLECOUNT_FLOAT 64.0 \n"
+    "#define SAMPLECOUNT_D2 32 \n"
+    "#define SAMPLECOUNT_D2_FLOAT 32.0 \n"
+    "#define INV_SAMPLECOUNT (1.0 / SAMPLECOUNT_FLOAT) \n"
+
+    "uniform sampler2DShadow osgShadow_shadowTexture; \n"
+    "uniform sampler3D osgShadow_jitterTexture; \n"
+
+    "uniform vec2 osgShadow_ambientBias; \n"
+    "uniform float osgShadow_softnessWidth; \n"
+    "uniform float osgShadow_jitteringScale; \n"
+
+    "void main(void) \n"
+    "{ \n"
+    "  vec4 sceneShadowProj  = gl_TexCoord[1]; \n"
+    "  float softFactor = osgShadow_softnessWidth * sceneShadowProj.w; \n"
+    "  vec4 smCoord  = sceneShadowProj; \n"
+    "  vec3 jitterCoord = vec3( gl_FragCoord.xy / osgShadow_jitteringScale, 0.0 ); \n"
+    "  float shadow = 0.0; \n"
+    // First "cheap" sample test
+    "  const float pass_div = 1.0 / (2.0 * 4.0); \n"
+    "  for ( int i = 0; i < 4; ++i ) \n"
+    "  { \n"
+    // Get jitter values in [0,1]; adjust to have values in [-1,1]
+    "    vec4 offset = 2.0 * texture3D( osgShadow_jitterTexture, jitterCoord ) -1.0; \n"
+    "    jitterCoord.z += 1.0 / SAMPLECOUNT_D2_FLOAT; \n"
+
+    "    smCoord.xy = sceneShadowProj.xy  + (offset.xy) * softFactor; \n"
+    "    shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x * pass_div; \n"
+
+    "    smCoord.xy = sceneShadowProj.xy  + (offset.zw) * softFactor; \n"
+    "    shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x *pass_div; \n"
+    "  } \n"
+    // skip all the expensive shadow sampling if not needed
+    "  if ( shadow * (shadow -1.0) != 0.0 ) \n"
+    "  { \n"
+    "    shadow *= pass_div; \n"
+    "    for (int i=0; i<SAMPLECOUNT_D2 - 4; ++i){ \n"
+    "      vec4 offset = 2.0 * texture3D( osgShadow_jitterTexture, jitterCoord ) - 1.0; \n"
+    "      jitterCoord.z += 1.0 / SAMPLECOUNT_D2_FLOAT; \n"
+
+    "      smCoord.xy = sceneShadowProj.xy  + offset.xy * softFactor; \n"
+    "      shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x * INV_SAMPLECOUNT; \n"
+
+    "      smCoord.xy = sceneShadowProj.xy  + offset.zw * softFactor; \n"
+    "      shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x * INV_SAMPLECOUNT; \n"
+    "    } \n"
+    "  } \n"
+    // apply shadow, modulo the ambient bias
+    "  gl_FragColor = gl_Color * (osgShadow_ambientBias.x + shadow * osgShadow_ambientBias.y); \n"
+    "} \n";
+
+//////////////////////////////////////////////////////////////////
+// fragment shader
+//
+static const char fragmentSoftShaderSource_withBaseTexture[] =
+    "#define SAMPLECOUNT 64 \n"
+    "#define SAMPLECOUNT_FLOAT 64.0 \n"
+    "#define SAMPLECOUNT_D2 32 \n"
+    "#define SAMPLECOUNT_D2_FLOAT 32.0 \n"
+    "#define INV_SAMPLECOUNT (1.0 / SAMPLECOUNT_FLOAT) \n"
+
+    "uniform sampler2D osgShadow_baseTexture; \n"
+    "uniform sampler2DShadow osgShadow_shadowTexture; \n"
+    "uniform sampler3D osgShadow_jitterTexture; \n"
+
+    "uniform vec2 osgShadow_ambientBias; \n"
+    "uniform float osgShadow_softnessWidth; \n"
+    "uniform float osgShadow_jitteringScale; \n"
+
+    "void main(void) \n"
+    "{ \n"
+    "  vec4 sceneShadowProj  = gl_TexCoord[1]; \n"
+    "  float softFactor = osgShadow_softnessWidth * sceneShadowProj.w; \n"
+    "  vec4 smCoord  = sceneShadowProj; \n"
+    "  vec3 jitterCoord = vec3( gl_FragCoord.xy / osgShadow_jitteringScale, 0.0 ); \n"
+    "  float shadow = 0.0; \n"
+    // First "cheap" sample test
+    "  const float pass_div = 1.0 / (2.0 * 4.0); \n"
+    "  for ( int i = 0; i < 4; ++i ) \n"
+    "  { \n"
+    // Get jitter values in [0,1]; adjust to have values in [-1,1]
+    "    vec4 offset = 2.0 * texture3D( osgShadow_jitterTexture, jitterCoord ) -1.0; \n"
+    "    jitterCoord.z += 1.0 / SAMPLECOUNT_D2_FLOAT; \n"
+
+    "    smCoord.xy = sceneShadowProj.xy  + (offset.xy) * softFactor; \n"
+    "    shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x * pass_div; \n"
+
+    "    smCoord.xy = sceneShadowProj.xy  + (offset.zw) * softFactor; \n"
+    "    shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x *pass_div; \n"
+    "  } \n"
+    // skip all the expensive shadow sampling if not needed
+    "  if ( shadow * (shadow -1.0) != 0.0 ) \n"
+    "  { \n"
+    "    shadow *= pass_div; \n"
+    "    for (int i=0; i<SAMPLECOUNT_D2 -4; ++i){ \n"
+    "      vec4 offset = 2.0 * texture3D( osgShadow_jitterTexture, jitterCoord ) - 1.0; \n"
+    "      jitterCoord.z += 1.0 / SAMPLECOUNT_D2_FLOAT; \n"
+
+    "      smCoord.xy = sceneShadowProj.xy  + offset.xy * softFactor; \n"
+    "      shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x * INV_SAMPLECOUNT; \n"
+
+    "      smCoord.xy = sceneShadowProj.xy  + offset.zw * softFactor; \n"
+    "      shadow +=  shadow2DProj( osgShadow_shadowTexture, smCoord ).x * INV_SAMPLECOUNT; \n"
+    "    } \n"
+    "  } \n"
+#if !(NO_DEFERRED_SHADING)
+    // apply color and object base texture
+      "  vec4 color = gl_Color * texture2D( osgShadow_baseTexture, gl_TexCoord[0].xy ); \n"
+    // apply shadow, modulo the ambient bias
+       "  gl_FragColor = color * (osgShadow_ambientBias.x + shadow * osgShadow_ambientBias.y); \n"
+#else
+    /* "  vec4 color = gl_Color * texture2D( osgShadow_baseTexture, gl_TexCoord[0].xy ); \n"
+    " gl_FragColor = color; \n"*/
+    " gl_FragColor = gl_Color; \n"
+#endif 
+    "} \n";
+
+
+
 int main ()
 {
     // Useful declaration.
@@ -340,7 +500,8 @@ int main ()
     osg::ref_ptr<osgShadow::SoftShadowMap> shadowMap = new osgShadow::SoftShadowMap;
     shadowMap->setJitteringScale(16);
     std::string pass1ShadowPath = Utils::Helper::Ins().getMediaPath() + "osg_deferred_shading/pass1Shadow.frag";
-    shadowMap->addShader(osgDB::readShaderFile(pass1ShadowPath));
+    //shadowMap->addShader(osgDB::readShaderFile(pass1ShadowPath));
+   // shadowMap->addShader(new osg::Shader(osg::Shader::FRAGMENT,fragmentSoftShaderSource_withBaseTexture));
     shadowMap->setLight(light);
     osg::ref_ptr<osgShadow::ShadowedScene> shadowedScene = new osgShadow::ShadowedScene;
     shadowedScene->setShadowTechnique(shadowMap.get());
@@ -395,7 +556,11 @@ int main ()
                 "png",
                 osgViewer::ScreenCaptureHandler::WriteToFile::OVERWRITE)));
     viewer.getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+#if !NO_DEFERRED_SHADING
     viewer.setSceneData(p.graph.get());
+#else
+    viewer.setSceneData(shadowedScene);
+#endif 
     viewer.setRunMaxFrameRate(40);
     viewer.setUpViewInWindow(300, 100, 800, 600);
     return viewer.run();
