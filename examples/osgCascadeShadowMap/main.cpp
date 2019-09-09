@@ -27,15 +27,16 @@ void main( int argc, char** argv )
     
     // Set the ground (only receives shadow)
     osg::ref_ptr<osg::MatrixTransform> groundNode = new osg::MatrixTransform;
-        groundNode->setMatrix(osg::Matrix::translate(osg::Vec3(0.0,0.0,-10.0)));
+    double scale  = 1000000;
+    groundNode->setMatrix(osg::Matrix::scale(scale,scale,scale)*osg::Matrix::translate(osg::Vec3(0.0,0.0,-10.0)));
         groundNode->addChild( osgDB::readNodeFile("lz.osg") );
     groundNode->setNodeMask( rcvShadowMask);
     
 
 
         osg::ref_ptr<osg::MatrixTransform> louNode2 = new osg::MatrixTransform;
-        louNode2->setMatrix(osg::Matrix::rotate(osg:egreesToRadians(90.0),0.0,0.0,1.0)*osg::Matrix::translate(osg::Vec3(0.0,0.0,10.0)));
-        louNode2->addChild( osgDB::readNodeFile("1lou.ive") );
+        louNode2->setMatrix(osg::Matrix::rotate(osg::DegreesToRadians(90.0),0.0,0.0,1.0)*osg::Matrix::translate(osg::Vec3(0.0,0.0,10.0)));
+        louNode2->addChild( osgDB::readNodeFile("cessna.osg") );
         louNode2->setNodeMask( castShadowMask|rcvShadowMask );
 
         osg::ref_ptr<osg::MatrixTransform> louNode3 = new osg::MatrixTransform;
@@ -44,7 +45,7 @@ void main( int argc, char** argv )
         louNode3->setNodeMask( castShadowMask|rcvShadowMask );
 
     
-        osg::ref_ptr<osgShadow:arallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,3);
+        osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,3);
         int mapres = 1024;
         pssm->setTextureResolution(mapres);
 
@@ -80,7 +81,7 @@ void main( int argc, char** argv )
 
 
 
-        osg::ref_ptr<osg:ight> light = new osg::Light();
+        osg::ref_ptr<osg::Light> light = new osg::Light();
         light->setLightNum(0);
 
         light->setPosition(osg::Vec4(1.0,0.0,1.0,0.0));
@@ -122,6 +123,9 @@ void main( int argc, char** argv )
         viewer.addEventHandler( new osgViewer::StatsHandler );
         viewer.addEventHandler( new osgViewer::WindowSizeHandler );
         viewer.setCameraManipulator(new osgGA::TrackballManipulator);
+
+        viewer.getCameraManipulator()->setHomePosition(osg::Vec3(-150.0,-10.0,110.0),osg::Vec3(-150.0,0.0,100.0),osg::Vec3(0,0,1));
+
         while (!viewer.done())
         {
                 viewer.frame();

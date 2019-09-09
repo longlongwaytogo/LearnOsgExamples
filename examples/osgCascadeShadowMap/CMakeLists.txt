@@ -1,4 +1,4 @@
-add_executable(osgCascadeShadowMap main.cpp link.txt)
+add_executable(osgCascadeShadowMap main.cpp CommonFunctions.cpp link.txt)
  
 
 
