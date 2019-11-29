@@ -1,0 +1,4 @@
+SET(TARGET_NAME Bumpping)
+
+ADD_EXECUTABLE(${TARGET_NAME} main.cpp)
+
