@@ -20,6 +20,7 @@ add_subdirectory(osgGL3)
 add_subdirectory(Draw2D)
 add_subdirectory(osgCascadeShadowMap)
 add_subdirectory(Water)
+add_subdirectory(Sphere)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET_PROPERTY(TARGET BlockTest PROPERTY FOLDER "OpenThreads")
