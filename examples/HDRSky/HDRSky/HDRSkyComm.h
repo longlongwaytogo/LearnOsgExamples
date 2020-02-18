@@ -1,0 +1,4 @@
+#ifndef __RENDER_HDRSKYCOMM_H__
+#define __RENDER_HDRSKYCOMM_H__
+
+#endif // __RENDER_HDRSKYCOMM_H__

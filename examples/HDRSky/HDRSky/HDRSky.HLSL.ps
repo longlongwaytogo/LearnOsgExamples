@@ -1,0 +1,107 @@
+cbuffer PER_BATCH:register(b0)
+{
+  float4 SkyDome_NightMoonOuterCoronaColorScale;
+  float4 SkyDome_NightMoonDirSize;
+  float2 SkyDome_NightSkyZenithColShift;
+  float3 SkyDome_PartialMieInScatteringConst;
+  float4 SkyDome_NightMoonInnerCoronaColorScale;
+  float3 SkyDome_NightSkyColBase;
+  float3 SkyDome_PhaseFunctionConstants;
+  float3 SkyDome_PartialRayleighInScatteringConst;
+  float3 SkyDome_SunDirection;
+  float3 SkyDome_NightSkyColDelta;
+  float3 SkyDome_NightMoonColor;
+};
+cbuffer PER_INSTANCE:register(b1)
+{
+  //NumInstructions;
+};
+cbuffer PER_FRAME:register(b3)
+{
+  float4 g_PS_SunLightDir:packoffset(c2);
+};
+struct pixout
+{
+  half4 Color:COLOR0;
+};
+sampler2D DebugMipColorsDiffuseSampler;
+sampler2D DebugMipColorsBumpSampler;
+float4 DVColor(float2 d)
+{
+  float Reso=512;
+  float TargetDeriv=1.0f/Reso;
+  float HalfTD=(TargetDeriv*0.5);
+  float TwoTD=(TargetDeriv*2.0);
+  float4 dd=float4(0,0,0,1);
+  if(d.x>TwoTD)
+  {
+    dd.x=1.0;
+  }
+  if(d.y>TwoTD)
+  {
+    dd.y=1.0;
+  }
+  if(d.x<HalfTD)
+  {
+    dd.z=1.0;
+  }
+  return(dd);
+}
+void DebugOutput(out half4 Color,in float4 baseTC)
+{
+  Color=0;
+}
+half4 EncodeRGBK(in half4 Color,const half fMultiplier,bool bUsePPP=false)
+{
+  const half4 cScale=half4(half3(1.h,1.h,1.h)/fMultiplier,1.h/255.0);
+  half fMax=saturate(dot(half4(Color.rgb,1.h),cScale));
+  Color.a=ceil(fMax*255.h)/255.h;
+  Color.xyz/=Color.a*fMultiplier;
+  if(bUsePPP)
+  {
+    Color.a=sqrt(Color.a);
+  }
+  return Color;
+}
+void HDROutput(out pixout OUT,half4 Color,half fDepth)
+{
+  OUT.Color=Color;
+}
+sampler2D skyDomeSamplerMie;
+sampler2D skyDomeSamplerRayleigh;
+sampler2D moonSampler;
+struct v2f_hdr
+{
+  float4 Position:POSITION;
+  float4 packedTC:TEXCOORD0;
+  float3 skyDir:TEXCOORD1;
+};
+pixout SkyHDRPS(v2f_hdr IN)
+{
+  pixout OUT=(pixout)0;
+  float2 baseTC=IN.packedTC.xy;
+  float2 moonTC=IN.packedTC.wz;
+  float3 skyDir=normalize(IN.skyDir);
+  half4 Color=half4(0,0,0,1);
+  half4 ColorMie=tex2D(skyDomeSamplerMie,baseTC.xy);
+  half4 ColorRayleigh=tex2D(skyDomeSamplerRayleigh,baseTC.xy);
+  float miePart_g_2=SkyDome_PhaseFunctionConstants.x;
+  float miePart_g2_1=SkyDome_PhaseFunctionConstants.y;
+  float cosine=-dot(SkyDome_SunDirection,skyDir);
+  float cosine2=cosine*cosine;
+  float miePhase=(1.0+cosine2)*pow(miePart_g2_1+miePart_g_2*cosine,-1.5);
+  float rayleighPhase=0.75*(1.0+cosine2);
+  Color.xyz=ColorMie*SkyDome_PartialMieInScatteringConst*miePhase+ColorRayleigh*SkyDome_PartialRayleighInScatteringConst*rayleighPhase;
+  float gr=saturate(skyDir.z*SkyDome_NightSkyZenithColShift.x+SkyDome_NightSkyZenithColShift.y);
+  gr*=2-gr;
+  Color.xyz+=SkyDome_NightSkyColBase+SkyDome_NightSkyColDelta*gr;
+  float4 moonAlbedo=tex2D(moonSampler,moonTC.xy);
+  Color.xyz+=SkyDome_NightMoonColor.xyz*moonAlbedo.xyz*moonAlbedo.a;
+  float m=1-dot(skyDir,SkyDome_NightMoonDirSize.xyz);
+  Color.xyz+=SkyDome_NightMoonInnerCoronaColorScale.xyz*(1.0/(1.05+m*SkyDome_NightMoonInnerCoronaColorScale.w));
+  Color.xyz+=SkyDome_NightMoonOuterCoronaColorScale.xyz*(1.0/(1.05+m*SkyDome_NightMoonOuterCoronaColorScale.w));
+  Color.xyz*=g_PS_SunLightDir.w;
+  Color.xyz=min(Color.xyz,(float3)16384.0);
+  HDROutput(OUT,Color,1);
+  return OUT;
+}
