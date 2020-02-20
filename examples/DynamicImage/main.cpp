@@ -10,11 +10,12 @@
 #include <osg/NodeVisitor>
 
 
-void updateImageData(osg::Image* img,osg::Vec4 color)
+void updateImageData(osg::Image* img,osg::Vec4 color,bool bAllocate = true)
 {
-    int w = 10;
-    int h = 10;
-    img->allocateImage(w,h,1,GL_RGBA,GL_FLOAT,1);
+    int w = 8;
+    int h = 8;
+    if(bAllocate)
+        img->allocateImage(w,h,1,GL_RGBA,GL_FLOAT,1);
     unsigned char* data = img->data();
 
      for(unsigned int r=0;r<h;++r)
@@ -25,6 +26,8 @@ void updateImageData(osg::Image* img,osg::Vec4 color)
         }
     }
 
+     if(!bAllocate)
+         img->dirty();
 	
 }
 class ImageUpdateCallback :public osg::NodeCallback
@@ -49,19 +52,19 @@ public:
             {
                 std::cout << m_num << std::endl;
                 clr = osg::Vec4(1,0,1,1.0);
-                 updateImageData(_img,clr);
+                 updateImageData(_img,clr,false);
             }
             else if(m_num == 200)
             {
                 clr = osg::Vec4(1.0,1.0,0.0,1.0);
-                 updateImageData(_img,clr);
+                 updateImageData(_img,clr,false);
                 std::cout << m_num << std::endl;
 
             }
             else if(m_num ==300)
             {
                  clr = osg::Vec4(0,1.0,0.0,1.0);
-                  updateImageData(_img,clr);
+                  updateImageData(_img,clr,false);
                 std::cout << m_num << std::endl;
 
             }
