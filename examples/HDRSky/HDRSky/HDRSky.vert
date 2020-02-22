@@ -81,8 +81,8 @@
   // float3 vfColGradBase;
   
   // uniform 
- vec3 SkyDome_NightMoonTexGenRight;
- vec3 SkyDome_NightMoonTexGenUp;
+ vec3 SkyDome_NightMoonTexGenRight = vec3(0.25882,0.96593,0);
+ vec3 SkyDome_NightMoonTexGenUp = vec3(-0.13443,0.03602,-0.99027);
  vec4 SkyDome_NightMoonDirSize = vec4(0.35355,0.61237,0.70711,13);
 // varying vec4 vs_Position;
  varying vec4 vs_packedTC;

@@ -21,8 +21,13 @@
 
 #include "HDRSky/HDRSkyComm.h"
 #include "HDRSky/HDRSky.h"
+#include "HDRSky/SkyLightManager.h"
+#include "HDRSky/SkyLightNishita.h"
 
 #define HDRSKY 1
+
+ osg::ref_ptr<SkyLightManager> g_skyLightManager;
+
 extern void configureViewerForMode( osgViewer::Viewer& viewer, osgFX::EffectCompositor* compositor,
                                     osg::Node* model, int displayMode );
 
@@ -157,8 +162,8 @@ int main( int argc, char** argv )
     
     // Create the scene
     osg::Node* model = osgDB::readNodeFiles( arguments );
-    if ( !model ) model = osgDB::readNodeFile( "lz.osg" );
-    
+  //  if ( !model ) model = osgDB::readNodeFile( "lz.osg" );
+    if ( !model ) model = osgDB::readNodeFile( "cow.osg" );
 
     osg::ref_ptr<osg::Group> scene = new osg::Group;
     if ( useSkyBox )
@@ -166,7 +171,19 @@ int main( int argc, char** argv )
 #if !HDRSKY
             scene->addChild( createSkyBox( model->getBound().radius() ) );
 #else 
-        scene->addChild(new HDRSky());
+         g_skyLightManager = new SkyLightManager(&viewer);
+         viewer.addEventHandler(new SkyLightEventHandler(g_skyLightManager));
+         
+        osg::ref_ptr<HDRSky> pHDRSky = new HDRSky();
+        if(pHDRSky)
+        {
+            UpdateTexCallBack* texCallback = new UpdateTexCallBack;
+            texCallback->setSkyLightManager(g_skyLightManager);
+            pHDRSky->addUpdateCallback(texCallback);
+            pHDRSky->m_pRenderParams = g_skyLightManager->GetRenderParams();
+            
+        }
+        scene->addChild(pHDRSky);
 #endif 
     }
     scene->addChild( shadowed ? createShadowedScene(model) : model );

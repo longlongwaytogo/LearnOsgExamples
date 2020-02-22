@@ -8,12 +8,12 @@
 #include <osg/Image>
 
 HDRSky::HDRSky()
-//: m_pRenderParams(0)
-/*, m_skyDomeTextureLastTimeStamp(-1)
+: m_pRenderParams(0)
+, m_skyDomeTextureLastTimeStamp(-1)
 , m_frameReset(0)
-, m_pStars(0)
+//, m_pStars(0)
 , m_pSkyDomeTextureMie(0)
-, m_pSkyDomeTextureRayleigh(0)*/
+, m_pSkyDomeTextureRayleigh(0)
 {
 /*	mfSetType(eDATA_HDRSky);
 	mfUpdateFlags(FCEF_TRANSFORM);*/
@@ -107,7 +107,7 @@ HDRSky::~HDRSky()
         geo->setNormalArray(normalArray,osg::Array::Binding::BIND_PER_VERTEX);
        
           // osg test normal
-        {
+        /*{
              osg::ref_ptr<osg::Geometry> normalGeo = new osg::Geometry;
             osg::ref_ptr<osg::Vec3Array> normalLines = new osg::Vec3Array;
 
@@ -119,21 +119,21 @@ HDRSky::~HDRSky()
             normalGeo->setVertexArray(normalLines);
             normalGeo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,0,normalLines->size()));
             geode->addDrawable(normalGeo.get());
-         }
+         }*/
        
 
-        colorArray->push_back(osg::Vec4(0,1,0,1.0));
-        geo->setColorArray(colorArray,osg::Array::Binding::BIND_OVERALL);
+      /*  colorArray->push_back(osg::Vec4(0,1,0,1.0));
+        geo->setColorArray(colorArray,osg::Array::Binding::BIND_OVERALL);*/
 	    ////设置颜色
 	    //geo->setColorArray(color.get());
 	    //geo->setColorBinding(osg::Geometry::AttributeBinding::BIND_PER_VERTEX);//设置颜色绑定
 
 	    geo->addPrimitiveSet(skyDomeIndiceArray);
         
-        //geode->addDrawable(geo.get());
+        geode->addDrawable(geo.get());
         {
            
-            geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere()));
+           // geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere()));
         }
 
         {
@@ -151,8 +151,10 @@ HDRSky::~HDRSky()
              osg::Image* img1 = osgDB::readImageFile(texRayleigh);
              osg::Image* img2 = osgDB::readImageFile(texMoom);
 
-             tex0->setImage(img0);
-             tex1->setImage(img1);
+            // tex0->setImage(img0);
+             //tex1->setImage(img1);
+             tex0 = m_pSkyDomeTextureMie;
+             tex1 = m_pSkyDomeTextureRayleigh;
              tex2->setImage(img2);
          
             ss->setTextureAttributeAndModes(0,tex0.get(),osg::StateAttribute::ON|osg::StateAttribute::OVERRIDE);
@@ -208,6 +210,9 @@ HDRSky::~HDRSky()
 #include <osg/MatrixTransform>
  void HDRSky::Init()
  {
+     // generate texture
+     GenerateSkyDomeTextures(SSkyLightRenderParams::skyDomeTextureWidth, SSkyLightRenderParams::skyDomeTextureHeight);
+
      /*osg::Geode* geode = CreateHDRSkyDome();
      addChild(geode);*/
     // addChild(createQuad());
@@ -215,5 +220,208 @@ HDRSky::~HDRSky()
      mt->setMatrix(osg::Matrix::scale(100,100,100));
      mt->addChild(CreateHDRSkyDome());
      addChild(mt);
+
+    
+
+ }
+
+ void HDRSky::GenerateSkyDomeTextures(int width, int height)
+ {
+     m_pSkyDomeTextureMie = new osg::Texture2D;
+     m_pSkyDomeTextureRayleigh = new osg::Texture2D;
+     
+     m_pSkyDomeTextureMie->setTextureSize(width,height);
+     m_pSkyDomeTextureMie->setFilter(osg::Texture::MAG_FILTER,osg::Texture::LINEAR);
+     m_pSkyDomeTextureMie->setFilter(osg::Texture::MIN_FILTER,osg::Texture::LINEAR);
+     m_pSkyDomeTextureMie->setWrap(osg::Texture::WRAP_S,osg::Texture::CLAMP_TO_EDGE);
+     m_pSkyDomeTextureMie->setWrap(osg::Texture::WRAP_T,osg::Texture::CLAMP_TO_EDGE);
+     m_pSkyDomeTextureMie->setInternalFormat( GL_RGBA16F_ARB );
+     m_pSkyDomeTextureMie->setSourceType( GL_FLOAT );
+     m_pSkyDomeTextureMie->setSourceFormat(GL_RGBA);
+
+     m_pSkyDomeTextureRayleigh->setTextureSize(width,height);
+     m_pSkyDomeTextureRayleigh->setFilter(osg::Texture::MAG_FILTER,osg::Texture::LINEAR);
+     m_pSkyDomeTextureRayleigh->setFilter(osg::Texture::MIN_FILTER,osg::Texture::LINEAR);
+     m_pSkyDomeTextureRayleigh->setWrap(osg::Texture::WRAP_S,osg::Texture::CLAMP_TO_EDGE);
+     m_pSkyDomeTextureRayleigh->setWrap(osg::Texture::WRAP_T,osg::Texture::CLAMP_TO_EDGE);
+     m_pSkyDomeTextureRayleigh->setInternalFormat( GL_RGBA16F_ARB );
+     m_pSkyDomeTextureRayleigh->setSourceType( GL_FLOAT );
+     m_pSkyDomeTextureRayleigh->setSourceFormat(GL_RGBA);
+
+
+     unsigned char* imageData = NULL;
+     // todo udpate imageData
+     const int bufSize = SSkyLightRenderParams::skyDomeTextureWidth*SSkyLightRenderParams::skyDomeTextureHeight*4;
+     imageData = new unsigned char[bufSize];
+
+     memset(imageData,0,bufSize);
+     if(imageData)
+     {
+         osg::Image* image = new osg::Image;
+         image->setImage(width, height, 1,
+             m_pSkyDomeTextureMie->getInternalFormat(), m_pSkyDomeTextureMie->getSourceFormat(),
+             m_pSkyDomeTextureMie->getSourceType(), imageData, osg::Image::USE_NEW_DELETE );
+         m_pSkyDomeTextureMie->setImage( 0, image );
+     }
+  
+
+     if(imageData)
+     {
+         osg::Image* image = new osg::Image;
+         image->setImage(width, height, 1,
+             m_pSkyDomeTextureRayleigh->getInternalFormat(), m_pSkyDomeTextureRayleigh->getSourceFormat(),
+             m_pSkyDomeTextureRayleigh->getSourceType(), imageData, osg::Image::USE_NEW_DELETE );
+         m_pSkyDomeTextureRayleigh->setImage( 0, image );
+     }
+
+ }
+
+ static void FillSkyTextureData(osg::Texture2D* pTexture, const void* pData, const int width, const int height, const unsigned int pitch)
+{
+    assert(pTexture && pTexture->getTextureWidth() == width && pTexture->getTextureHeight() == height);
+	 
+ 
+    osg::Image* img = pTexture->getImage(0);
+    if(img)
+    {
+       // img->setData(pData,osg::Image::AllocationMode::USE_NEW_DELETE);
+        unsigned char* pImgData = img->data();
+        memcpy(pImgData,(unsigned char*)pData,width*height*4);
+        img->dirty();
+    }
+	 
+}
+
+ void HDRSky::Update()
+ {
+     
+	{
+		// re-create sky dome textures if necessary
+		bool forceTextureUpdate(false);
+		if (!m_pSkyDomeTextureMie|| ! m_pSkyDomeTextureRayleigh )
+		{
+			GenerateSkyDomeTextures(SSkyLightRenderParams::skyDomeTextureWidth, SSkyLightRenderParams::skyDomeTextureHeight);
+			forceTextureUpdate = true;
+		}
+
+		//// dyn tex data lost due to device reset?
+		//if (m_frameReset != rd->m_nFrameReset)
+		//{
+		//	forceTextureUpdate = true;
+		//	m_frameReset = rd->m_nFrameReset;
+		//}
+
+        // todo 
+        
+		// update sky dome texture if new data is available
+		if (m_skyDomeTextureLastTimeStamp != m_pRenderParams->m_skyDomeTextureTimeStamp || forceTextureUpdate)
+		{
+			FillSkyTextureData(m_pSkyDomeTextureMie, m_pRenderParams->m_pSkyDomeTextureDataMie, SSkyLightRenderParams::skyDomeTextureWidth, SSkyLightRenderParams::skyDomeTextureHeight, m_pRenderParams->m_skyDomeTexturePitch);
+			FillSkyTextureData(m_pSkyDomeTextureRayleigh, m_pRenderParams->m_pSkyDomeTextureDataRayleigh, SSkyLightRenderParams::skyDomeTextureWidth, SSkyLightRenderParams::skyDomeTextureHeight, m_pRenderParams->m_skyDomeTexturePitch);
+
+			// update time stamp of last update
+			m_skyDomeTextureLastTimeStamp = m_pRenderParams->m_skyDomeTextureTimeStamp;
+		}
+	}
+ }
+
+ void HDRSky::UpdateUniform()
+ {
+     osg::StateSet* ss = getOrCreateStateSet();
+
+
+     // shader constants -- phase function constants
+     static std::string Param3Name("SkyDome_PartialMieInScatteringConst");
+     static std::string Param4Name("SkyDome_PartialRayleighInScatteringConst");
+     static std::string Param5Name("SkyDome_SunDirection");
+     static std::string Param6Name("SkyDome_PhaseFunctionConstants");
+     osg::Uniform* uf3 = ss->getOrCreateUniform(Param3Name,osg::Uniform::FLOAT_VEC4,1);
+     uf3->set(m_pRenderParams->m_partialMieInScatteringConst);
+
+     osg::Uniform* uf4 = ss->getOrCreateUniform(Param4Name,osg::Uniform::FLOAT_VEC4,1);
+     uf4->set(m_pRenderParams->m_partialRayleighInScatteringConst);
+
+     osg::Uniform* uf5 = ss->getOrCreateUniform(Param5Name,osg::Uniform::FLOAT_VEC4,1);
+     uf5->set(m_pRenderParams->m_sunDirection );
+
+     osg::Uniform* uf6 = ss->getOrCreateUniform(Param3Name,osg::Uniform::FLOAT_VEC4,1);
+     uf6->set(m_pRenderParams->m_phaseFunctionConsts );
+
+
+     // shader constants -- night sky relevant constants
+	/*	osg::Vec3 nightSkyHorizonCol;
+		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_HORIZON_COLOR, nightSkyHorizonCol );
+		Vec3 nightSkyZenithCol;
+		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_ZENITH_COLOR, nightSkyZenithCol );
+		float nightSkyZenithColShift( p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_ZENITH_SHIFT ) );	
+		const float minNightSkyZenithGradient( -0.1f );
+
+		static CCryNameR Param7Name("SkyDome_NightSkyColBase");
+		static CCryNameR Param8Name("SkyDome_NightSkyColDelta");
+		static CCryNameR Param9Name("SkyDome_NightSkyZenithColShift");*/
+
+		/*Vec4 nsColBase( nightSkyHorizonCol, 0 );
+		ef->FXSetPSFloat(Param7Name, &nsColBase, 1 );
+		Vec4 nsColDelta( nightSkyZenithCol - nightSkyHorizonCol, 0 );
+		ef->FXSetPSFloat(Param8Name, &nsColDelta, 1 );
+		Vec4 nsZenithColShift( 1.0f / ( nightSkyZenithColShift - minNightSkyZenithGradient ),  -minNightSkyZenithGradient / ( nightSkyZenithColShift - minNightSkyZenithGradient ) , 0, 0 );
+		ef->FXSetPSFloat(Param9Name, &nsZenithColShift, 1 );
+
+		{
+			Vec3 mr;
+			p3DEngine->GetGlobalParameter(E3DPARAM_SKY_MOONROTATION, mr);
+			float moonLati = -gf_PI + gf_PI * mr.x / 180.0f;
+			float moonLong = 0.5f * gf_PI - gf_PI * mr.y / 180.0f;
+			{
+				float sinLonR = sinf(-0.5f * gf_PI);
+				float cosLonR = cosf(-0.5f * gf_PI);
+				float sinLatR = sinf(moonLati + 0.5f * gf_PI);
+				float cosLatR = cosf(moonLati + 0.5f * gf_PI);
+				Vec3 moonTexGenRight(sinLonR * cosLatR, sinLonR * sinLatR, cosLonR);
+
+				Vec4 nsMoonTexGenRight(moonTexGenRight, 0);
+				static CCryNameR ParamName("SkyDome_NightMoonTexGenRight");
+				ef->FXSetVSFloat(ParamName, &nsMoonTexGenRight, 1);
+			}
+			{
+				float sinLonU = sinf(moonLong + 0.5f * gf_PI);
+				float cosLonU = cosf(moonLong + 0.5f * gf_PI);
+				float sinLatU = sinf(moonLati);
+				float cosLatU = cosf(moonLati);
+				Vec3 moonTexGenUp(sinLonU * cosLatU, sinLonU * sinLatU, cosLonU);
+
+				Vec4 nsMoonTexGenUp(moonTexGenUp, 0);
+				static CCryNameR ParamName("SkyDome_NightMoonTexGenUp");
+				ef->FXSetVSFloat(ParamName, &nsMoonTexGenUp, 1);
+			}
+		}
+
+		Vec3 nightMoonDirection;
+		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_DIRECTION, nightMoonDirection );
+		float nightMoonSize( 25.0f - 24.0f * clamp_tpl( p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_SIZE ), 0.0f, 1.0f ) );
+		Vec4 nsMoonDirSize( nightMoonDirection, nightMoonSize );
+		static CCryNameR Param10Name("SkyDome_NightMoonDirSize");
+		ef->FXSetVSFloat(Param10Name, &nsMoonDirSize, 1 );
+		ef->FXSetPSFloat(Param10Name, &nsMoonDirSize, 1 );
+
+		Vec3 nightMoonColor;
+		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_COLOR, nightMoonColor );
+		Vec4 nsMoonColor( nightMoonColor, 0 );
+		static CCryNameR Param11Name("SkyDome_NightMoonColor");
+		ef->FXSetPSFloat(Param11Name, &nsMoonColor, 1 );
+
+		Vec3 nightMoonInnerCoronaColor;
+		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_INNERCORONA_COLOR, nightMoonInnerCoronaColor );
+		float nightMoonInnerCoronaScale( 1.0f + 1000.0f * p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_INNERCORONA_SCALE ) );	
+		Vec4 nsMoonInnerCoronaColorScale( nightMoonInnerCoronaColor, nightMoonInnerCoronaScale );
+		static CCryNameR Param12Name("SkyDome_NightMoonInnerCoronaColorScale");
+		ef->FXSetPSFloat(Param12Name, &nsMoonInnerCoronaColorScale, 1 );
+
+		Vec3 nightMoonOuterCoronaColor;
+		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_OUTERCORONA_COLOR, nightMoonOuterCoronaColor );
+		float nightMoonOuterCoronaScale( 1.0f + 1000.0f * p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_MOON_OUTERCORONA_SCALE ) );
+		Vec4 nsMoonOuterCoronaColorScale( nightMoonOuterCoronaColor, nightMoonOuterCoronaScale );
+		static CCryNameR Param13Name("SkyDome_NightMoonOuterCoronaColorScale");
+		ef->FXSetPSFloat(Param13Name, &nsMoonOuterCoronaColorScale, 1 );*/
 
  }

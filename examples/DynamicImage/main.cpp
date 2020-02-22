@@ -116,7 +116,7 @@ void main()
         tex->setFilter(osg::Texture::MIN_FILTER,osg::Texture::LINEAR);
         tex->setSourceFormat(GL_RGBA);
         tex->setSourceType(GL_FLOAT);
-        tex->setInternalFormat(GL_RGBA);
+        tex->setInternalFormat(GL_RGBA16F_ARB);
         
 
         ss->setTextureAttributeAndModes(0,tex,osg::StateAttribute::ON|osg::StateAttribute::OVERRIDE);

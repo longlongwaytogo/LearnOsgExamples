@@ -2,6 +2,7 @@
 #define __RENDER_HDRSKY_H__
 
 #include <osg/Referenced> 
+#include <osg/ref_ptr>
 #include <osg/Node>
 #include <osg/Geometry>
 #include <osg/Vec2>
@@ -11,6 +12,8 @@
 #include <assert.h>
 #include <osg/Group>
 #include <osg/Geode>    
+#include <osg/Texture2D>
+#include "HDRSkyComm.h"
 
  
  
@@ -32,14 +35,28 @@ public:
 	/*class CTexture* m_pSkyDomeTextureMie;
 	class CTexture* m_pSkyDomeTextureRayleigh;*/
     osg::Geode* CreateHDRSkyDome();
+
+    void UpdateUniform();
+    void Update();
+    void GenerateSkyDomeTextures(int width, int height);
+
 private:
 	void Init();
 
-private:
+     
+
+public:
 	int m_skyDomeTextureLastTimeStamp;
 	int m_frameReset;
+
+    osg::ref_ptr<osg::Texture2D> m_pSkyDomeTextureMie;
+    osg::ref_ptr<osg::Texture2D> m_pSkyDomeTextureRayleigh;
 	//class CStars* m_pStars;
+
+    const SSkyLightRenderParams* m_pRenderParams;
 };
+
+
 
 
 #endif  // __CRESKY_H__

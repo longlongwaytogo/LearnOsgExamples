@@ -12,6 +12,10 @@ SET(EXAMPLE_FILES
 	HDRSky/HDRSky.h
 	HDRSky/HDRSkyComm.h
 	HDRSky/HDRSky.cpp
+	HDRSky/SkyLightNishita.h
+	HDRSky/SkyLightNishita.cpp
+	HDRSky/SkyLightManager.h
+	HDRSky/SkyLightManager.cpp
 )
 
 
