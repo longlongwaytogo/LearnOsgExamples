@@ -253,7 +253,7 @@ HDRSky::~HDRSky()
 
      unsigned char* imageData = NULL;
      // todo udpate imageData
-     const int bufSize = SSkyLightRenderParams::skyDomeTextureWidth*SSkyLightRenderParams::skyDomeTextureHeight*4;
+     const int bufSize = SSkyLightRenderParams::skyDomeTextureWidth*SSkyLightRenderParams::skyDomeTextureHeight*4*sizeof(float);
      imageData = new unsigned char[bufSize];
 
      memset(imageData,0,bufSize);
@@ -266,7 +266,7 @@ HDRSky::~HDRSky()
          m_pSkyDomeTextureMie->setImage( 0, image );
      }
   
-
+     imageData = new unsigned char[bufSize];
      if(imageData)
      {
          osg::Image* image = new osg::Image;
@@ -288,7 +288,8 @@ HDRSky::~HDRSky()
     {
        // img->setData(pData,osg::Image::AllocationMode::USE_NEW_DELETE);
         unsigned char* pImgData = img->data();
-        memcpy(pImgData,(unsigned char*)pData,width*height*4);
+        int n = img->getTotalDataSize();
+        memcpy(pImgData,(unsigned char*)pData,width*height*sizeof(osg::Vec4));
         img->dirty();
     }
 	 

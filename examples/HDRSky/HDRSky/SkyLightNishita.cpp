@@ -748,7 +748,7 @@ uint32 SkyLightNishita::OpticalLUTIndex( uint32 heightIndex, uint32 cosVertAngle
 #include <fstream>
 bool SkyLightNishita::LoadOpticalLUTs()
 {
-	
+	// todo set right path later
    	std::fstream fs(c_lutFileName,std::ios::in|std::ios::binary);
 	if(fs.is_open() )
 	{
