@@ -64,6 +64,8 @@
 
                      以上只是理论，b方法在编写代码时出现坐标轴来回闪烁，某一时刻是正确的，某一时刻处于错误位置，反复跳变，但我认为理论结果是正确的，应该是自己写的代码有问题。
                */
+#define USE_ONE 0
+#if USE_ONE
                    osg::MatrixTransform* pTM = dynamic_cast<osg::MatrixTransform*>(node);
                    if(pTM)
                    {
@@ -83,6 +85,27 @@
                        mv.setTrans(translate);
                        pTM->setMatrix(osg::Matrix::scale(scale) *  mv /** mm*/);
                    }
+#else
+                osg::MatrixTransform* pTM = dynamic_cast<osg::MatrixTransform*>(node);
+                   if(pTM)
+                   {
+                       osg::Camera* camera = m_viewer->getCamera();
+                       osg::Vec3 translate = pTM->getMatrix().getTrans();
+                       osg::Vec3 scale = pTM->getMatrix().getScale();
+                       osg::Matrix mv = camera->getViewMatrix();
+            
+                       osg::Matrix inv_mv = camera->getInverseViewMatrix();  // 将视图矩阵转换为正常的变换矩阵
+                       osg::Quat inv_q = inv_mv.getRotate();  
+                       osg::Quat q = mv.getRotate();
+               
+                       // 模型当前所处的旋转坐标系，和相机所处的坐标系存在绕x轴逆时顺时针转90度
+                       osg::Quat dq(osg::DegreesToRadians(90.0f),osg::Vec3(1.0f,0.0f,0.0f));
+                      // pTM->setMatrix(osg::Matrix::scale(scale)* osg::Matrix::rotate( dq * q ) * osg::Matrix::translate(translate));
+                        static osg::Matrix mm = osg::Matrix::rotate(dq);
+                       mv.setTrans(translate);
+                       pTM->setMatrix(osg::Matrix::scale(scale) *  mv /** mm*/);
+                   }
+#endif 
            }
     private:
         osg::ref_ptr<osgViewer::Viewer> m_viewer;
@@ -136,7 +159,7 @@
     HUDAxis::~HUDAxis()
     {
     }
-
+#include <osg/Math>
 
     osg::Camera* createHudCamera(osgViewer::Viewer* viewer,int width = 1024, int height = 1024)
     {
@@ -145,7 +168,7 @@
         hudCamera->setRenderOrder(osg::Camera::POST_RENDER);
         hudCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
         hudCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
-        hudCamera->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF|osg::StateAttribute::OVERRIDE);
+        
         osg::Node* axes = osgDB::readNodeFile("axes.osgt");
         osg::MatrixTransform* pTM = new osg::MatrixTransform;
         pTM->addChild(axes);
@@ -158,6 +181,33 @@
 
         return hudCamera.release();
     }
+
+        osg::Camera* createHudCamera2(osgViewer::Viewer* viewer,int width = 1024, int height = 1024)
+    {
+        width = 512;
+        height = 512;
+        osg::ref_ptr<osg::Camera> hudCamera = new osg::Camera;
+        hudCamera->setProjectionMatrixAsOrtho(0,width,0,height,-100,100);
+        hudCamera->setRenderOrder(osg::Camera::POST_RENDER);
+        hudCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+       // hudCamera->setClearMask(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+        hudCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
+        hudCamera->setClearColor(osg::Vec4(0.2,0.2,1.0,1.0));
+       // hudCamera->setViewMatrix(osg::Matrix::scale(1,1,-1)*osg::Matrix::rotate(osg::Quat(osg::DegreesToRadians(30.0),osg::Vec3(0,1,0))));
+        osg::Node* axes = osgDB::readNodeFile("axes.osgt");
+        osg::MatrixTransform* pTM = new osg::MatrixTransform;
+        pTM->addChild(axes);
+        hudCamera->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF|osg::StateAttribute::OVERRIDE);
+        pTM->setMatrix(osg::Matrix::scale(osg::Vec3(width/12,width/12,width/12))*osg::Matrix::translate(osg::Vec3(width/20,width/20,1)));
+       // pTM->setUpdateCallback(new HudCallback(viewer));
+        hudCamera->addChild(pTM);
+        //hudCamera->setViewMatrixAsLookAt(osg::Vec3(0,-1,0),osg::Vec3(0,0,0),osg::Vec3(0,0,1)); // osg 默认相机位置
+        //hudCamera->setViewMatrixAsLookAt(osg::Vec3(0,0,1),osg::Vec3(0,0,0),osg::Vec3(0,1,0)); // opengl 默认相机位置
+
+        return hudCamera.release();
+    }
+#include <osg/Texture2D>
+#include <osgDB/ReadFile>
     void main()
     {
         osgViewer::Viewer viewer;
@@ -168,17 +218,31 @@
         osg::ref_ptr<osg::Node> axes = osgDB::readNodeFile("axes.osgt");
         osg::ref_ptr<osg::Node> cow = osgDB::readNodeFile("cow.osg");
    
-        // 使用hudAxes类绘制的坐标系
-        hudAxes->addChild(axes);
-        hudAxes->setMainCamera(viewer.getCamera());
-        hudAxes->setRenderOrder(osg::Camera::POST_RENDER);
-        hudAxes->setClearMask(GL_DEPTH_BUFFER_BIT);
-        hudAxes->setAllowEventFocus(false);
-        hudAxes->setReferenceFrame(Transform::ABSOLUTE_RF);
-        root->addChild(hudAxes);
+        //// 使用hudAxes类绘制的坐标系
+        //hudAxes->addChild(axes);
+        //hudAxes->setMainCamera(viewer.getCamera());
+        //hudAxes->setRenderOrder(osg::Camera::POST_RENDER);
+        //hudAxes->setClearMask(GL_DEPTH_BUFFER_BIT);
+        //hudAxes->setAllowEventFocus(false);
+        //hudAxes->setReferenceFrame(Transform::ABSOLUTE_RF);
+        //root->addChild(hudAxes);
  
+        osg::Matrix viewMat;
+        viewMat = osg::Matrix::lookAt(osg::Vec3(0,0,10),osg::Vec3(0,0,0),osg::Vec3(0,1,0));
         // 使用回调方式创建的坐标系
-        root->addChild(createHudCamera(&viewer));
+        osg::Camera* pHud = createHudCamera2(&viewer);
+        //pHud->setViewport(400,400,800,600);
+        osg::Texture2D* tex0 = new osg::Texture2D;
+        osg::Texture2D* tex1 = new osg::Texture2D;
+        tex0->setImage(osgDB::readImageFile("Images/skymap.jpg"));
+        tex1->setImage(osgDB::readImageFile("Images/whitemetal_diffuse.jpg"));
+        osg::Node* pQuadNode = osg::createTexturedQuadGeometry(osg::Vec3(0,0,-2),osg::Vec3(100,0,0),osg::Vec3(0,100,0));
+        pQuadNode->getOrCreateStateSet()->setTextureAttributeAndModes(0,tex0);
+        osg::Node* pQuadNode2 = osg::createTexturedQuadGeometry(osg::Vec3(50,0,-1),osg::Vec3(100,0,0),osg::Vec3(0,100,0));
+        pQuadNode2->getOrCreateStateSet()->setTextureAttributeAndModes(0,tex1);
+        pHud->addChild(pQuadNode);
+        pHud->addChild(pQuadNode2);
+        root->addChild(pHud);
         root->addChild(cow);
 
         viewer.setSceneData(root);

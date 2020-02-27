@@ -214,8 +214,14 @@ osg::Geode* CreateHDRSkyDome()
 
 }
 
+#include <vector>
+#include <fstream>
+
+void testVector();
+
 void main()
-{
+{  
+   // testVector();
     osgViewer::Viewer viewer;
     osg::Group* root = new osg::Group;
     
@@ -258,4 +264,72 @@ void main()
     viewer.realize();
     viewer.run();
    
+}
+void testVector()// test vector read write
+{
+    {
+
+        std::fstream f("d:\\try.dat", std::ios::out|std::ios::binary);//供写使用，文件不存在则创建，存在则清空原内容
+        f << 1234 <<' '  << 3.14 << 'A' << "How are you"; //写入数据
+        f.close();//关闭文件以使其重新变为可访问，函数一旦调用，原先的流对象就可以被用来打开其它的文件
+        f.open("d:\\try.dat", std::ios::in|std::ios::binary);//打开文件，供读
+        int i;
+        double d;
+        char c;
+        char s[20];
+        f >> i >> d >> c;               //读取数据
+        f.getline(s, 20);
+        std::cout << i << std::endl;             //显示各数据
+        std::cout << d <<  std::endl;
+        std::cout << c <<  std::endl;
+        std::cout << s <<  std::endl;
+        f.close();
+    }
+
+    {
+        std::vector<int> vals;
+        for(int i = 0; i < 100; ++i)
+            vals.push_back(i);
+
+        std::fstream fs("info.dat",std::ios::out|std::ios::binary);
+        if(fs.is_open())
+        {
+             //fs << 1234 <<' '  << 3.14 << 'A' << "How are you"; //写入数据
+            int len = vals.size();
+            fs << len;
+           /* char buf[401];
+            memset(buf,0,401);
+            memcpy(buf,&(vals[0]),sizeof(int)*vals.size());*/
+            fs.write((const char*)&(vals[0]),vals.size()* sizeof(int));
+           // fs.write((const char*)buf,vals.size()* sizeof(int));
+            fs.close();
+            
+        }
+
+        std::fstream ifs("info.dat",std::ios::in|std::ios::binary);
+        if(ifs.is_open())
+        {
+  
+
+            int length  = 100;
+           ifs >> length;
+            if(length>0)
+            {
+                std::vector<int> rvals(length,0);
+               // char buffer[401];
+               // memset(buffer,0,401);
+                //ifs.read(buffer,400);
+                 ifs.read((char*)&(rvals[0]),length * sizeof(int));
+               /* for(int i = 0; i< 100; ++i)
+                {
+                    memcpy(&(rvals[i]),(void*)(buffer +4*i),sizeof(int));
+                }*/
+               // fs.read((char*)&(rvals[0]),length * sizeof(int));
+                for(int i = 0; i < rvals.size(); ++i)
+                    std::cout << rvals[i] <<std::endl;
+            }
+            ifs.close();
+        }
+        
+    }
 }

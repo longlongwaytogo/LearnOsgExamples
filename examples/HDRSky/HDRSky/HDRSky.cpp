@@ -216,11 +216,13 @@ HDRSky::~HDRSky()
      /*osg::Geode* geode = CreateHDRSkyDome();
      addChild(geode);*/
     // addChild(createQuad());
-     osg::MatrixTransform* mt = new osg::MatrixTransform;
+     osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
      mt->setMatrix(osg::Matrix::scale(100,100,100));
      mt->addChild(CreateHDRSkyDome());
      addChild(mt);
-
+    // if(m_bDebug)
+         m_debugNode = createDebugView();
+     //addChild(m_debugNode.get());
     
 
  }
@@ -423,5 +425,51 @@ HDRSky::~HDRSky()
 		Vec4 nsMoonOuterCoronaColorScale( nightMoonOuterCoronaColor, nightMoonOuterCoronaScale );
 		static CCryNameR Param13Name("SkyDome_NightMoonOuterCoronaColorScale");
 		ef->FXSetPSFloat(Param13Name, &nsMoonOuterCoronaColorScale, 1 );*/
+
+ }
+
+ void HDRSky::SetEnableDebug(bool bDebug)
+ { 
+     m_bDebug = bDebug;
+     if(bDebug)
+     {
+       m_debugNode->setNodeMask(0xFFFFFFFF);
+     }
+     else
+     {
+         m_debugNode->setNodeMask(0x0);
+
+     }
+ }
+
+ osg::Node* HDRSky::createDebugView()
+ {
+     osg::ref_ptr<osg::Camera> camera = new osg::Camera;
+     camera->setRenderOrder(osg::Camera::POST_RENDER,19);
+     camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
+     camera->setClearMask(GL_DEPTH_BUFFER_BIT);
+     // camera->setProjectionMatrixAsOrtho2D(0,1000,0,1000);
+     // camera->setProjectionMatrix(osg::Matrix::ortho2D(0,600,0,600));//正交投影  
+     osg::Node* texMieNode = osg::createTexturedQuadGeometry(osg::Vec3(-0.5,-0.5,0),osg::Vec3(0.5,0,0),osg::Vec3(0.0,0.5,0.0));
+     osg::Node* texRayleighNode = osg::createTexturedQuadGeometry(osg::Vec3(0.5,-0.5,0),osg::Vec3(0.5,0,0),osg::Vec3(0.0,0.5,0.0));
+
+     camera->setProjectionMatrix( osg::Matrix::ortho2D(-2.0, 2.0, -2.0, 2.0) );
+     camera->setViewMatrix( osg::Matrix::identity() );
+     //camera->addChild( createScreenQuad(1.0, 1.0) );
+     camera->addChild(texMieNode);
+     camera->addChild(texRayleighNode);
+     texMieNode->getOrCreateStateSet()->setTextureAttributeAndModes(0,m_pSkyDomeTextureMie);
+     texRayleighNode->getOrCreateStateSet()->setTextureAttributeAndModes(0,m_pSkyDomeTextureRayleigh);
+
+
+     //camera->setAllowEventFocus( false );
+
+
+
+     //osg::ref_ptr<osg::Node> axisNode = osgDB::readNodeFile("cow.osgt");
+     //camera->addChild(axisNode);
+
+     // return axisNode.release();
+     return camera.release();
 
  }

@@ -23,6 +23,7 @@ add_subdirectory(Water)
 add_subdirectory(Sphere)
 add_subdirectory(HDRSky)
 add_subdirectory(DynamicImage)
+add_subdirectory(Ortho)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET_PROPERTY(TARGET BlockTest PROPERTY FOLDER "OpenThreads")

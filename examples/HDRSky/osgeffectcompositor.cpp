@@ -141,7 +141,9 @@ int main( int argc, char** argv )
 {
     osg::ArgumentParser arguments( &argc, argv );
     osgViewer::Viewer viewer;
-    
+    // Add all to the root node of the viewer
+    osg::ref_ptr<osg::Group> root = new osg::Group;
+
     int displayMode = 1;
     if ( arguments.read("--simple-mode") ) displayMode = 0;
     else if ( arguments.read("--analysis-mode") ) displayMode = 1;
@@ -170,7 +172,7 @@ int main( int argc, char** argv )
     {
 #if !HDRSKY
             scene->addChild( createSkyBox( model->getBound().radius() ) );
-#else 
+#else
          g_skyLightManager = new SkyLightManager(&viewer);
          viewer.addEventHandler(new SkyLightEventHandler(g_skyLightManager));
          
@@ -181,13 +183,17 @@ int main( int argc, char** argv )
             texCallback->setSkyLightManager(g_skyLightManager);
             pHDRSky->addUpdateCallback(texCallback);
             pHDRSky->m_pRenderParams = g_skyLightManager->GetRenderParams();
+           if( pHDRSky->IsEnableDebug())
+               root->addChild(pHDRSky->getDebugNode());
             
         }
         scene->addChild(pHDRSky);
 #endif 
     }
-    scene->addChild( shadowed ? createShadowedScene(model) : model );
-    
+  //  scene->addChild( shadowed ? createShadowedScene(model) : model );
+    {
+
+    }
     // Create the effect compositor from XML file
     osgFX::EffectCompositor* compositor = osgFX::readEffectFile( effectFile );
     if ( !compositor )
@@ -199,8 +205,7 @@ int main( int argc, char** argv )
     // For the fastest and simplest effect use, this is enough!
     compositor->addChild( scene.get() );
     
-    // Add all to the root node of the viewer
-    osg::ref_ptr<osg::Group> root = new osg::Group;
+    
     root->addChild( compositor );
     if ( !normalSceneFile.empty() )
     {

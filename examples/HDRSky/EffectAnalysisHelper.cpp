@@ -9,6 +9,34 @@
 
 #include "EffectCompositor"
 
+osg::Camera* createDebugView()
+{
+    osg::ref_ptr<osg::Camera> camera = new osg::Camera;
+    camera->setRenderOrder(osg::Camera::POST_RENDER,19);
+    camera->setReferenceFrame(osg::Camera::ABSOLUTE_RF);
+    camera->setClearMask(GL_DEPTH_BUFFER_BIT);
+    // camera->setProjectionMatrixAsOrtho2D(0,1000,0,1000);
+    // camera->setProjectionMatrix(osg::Matrix::ortho2D(0,600,0,600));//正交投影  
+    //osg::Node* texMieNode = osg::createTexturedQuadGeometry(osg::Vec3(-0.5,-0.5,0),osg::Vec3(0.5,0,0),osg::Vec3(0.0,0.5,0.0));
+   
+    camera->setProjectionMatrix( osg::Matrix::ortho2D(-2.0, 2.0, -2.0, 2.0) );
+    camera->setViewMatrix( osg::Matrix::identity() );
+    // camera->addChild( createScreenQuad(1.0, 1.0) );
+    //camera->addChild(texMieNode);
+
+
+    //camera->setAllowEventFocus( false );
+
+
+
+    osg::ref_ptr<osg::Node> axisNode = osgDB::readNodeFile("cow.osgt");
+    camera->addChild(axisNode);
+   
+    // return axisNode.release();
+    return camera.release();
+
+}
+
 osg::Camera* createHUDCamera( double left, double right, double bottom, double top )
 {
     osg::ref_ptr<osg::Camera> camera = new osg::Camera;
@@ -321,6 +349,7 @@ void configureViewerForMode( osgViewer::Viewer& viewer, osgFX::EffectCompositor*
             camera->setRenderOrder( osg::Camera::POST_RENDER, 10 );  // make sure to render after the compositor
             root->addChild( camera );
             
+           // root->addChild( createDebugView());
             viewer.addEventHandler( new CompositorAnalysis(camera, compositor) );
         }
         break;

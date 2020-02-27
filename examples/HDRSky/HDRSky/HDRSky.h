@@ -39,10 +39,12 @@ public:
     void UpdateUniform();
     void Update();
     void GenerateSkyDomeTextures(int width, int height);
-
+    void SetEnableDebug(bool bDebug);
+    bool IsEnableDebug(){ return m_bDebug;}
+    osg::Node* getDebugNode() { return m_debugNode;}
 private:
 	void Init();
-
+    osg::Node* createDebugView();
      
 
 public:
@@ -54,6 +56,8 @@ public:
 	//class CStars* m_pStars;
 
     const SSkyLightRenderParams* m_pRenderParams;
+    bool m_bDebug;
+    osg::ref_ptr<osg::Node> m_debugNode;
 };
 
 
