@@ -345,6 +345,8 @@ HDRSky::~HDRSky()
 			// update time stamp of last update
 			m_skyDomeTextureLastTimeStamp = m_pRenderParams->m_skyDomeTextureTimeStamp;
 		}
+
+        UpdateUniform();
 	}
  }
 
@@ -358,19 +360,19 @@ HDRSky::~HDRSky()
      static std::string Param4Name("SkyDome_PartialRayleighInScatteringConst");
      static std::string Param5Name("SkyDome_SunDirection");
      static std::string Param6Name("SkyDome_PhaseFunctionConstants");
-     osg::Uniform* uf3 = ss->getOrCreateUniform(Param3Name,osg::Uniform::FLOAT_VEC4,1);
+   /*  osg::Uniform* uf3 = ss->getOrCreateUniform(Param3Name,osg::Uniform::FLOAT_VEC4,1);
      uf3->set(m_pRenderParams->m_partialMieInScatteringConst);
 
      osg::Uniform* uf4 = ss->getOrCreateUniform(Param4Name,osg::Uniform::FLOAT_VEC4,1);
-     uf4->set(m_pRenderParams->m_partialRayleighInScatteringConst);
+     uf4->set(m_pRenderParams->m_partialRayleighInScatteringConst);*/
 
      osg::Uniform* uf5 = ss->getOrCreateUniform(Param5Name,osg::Uniform::FLOAT_VEC4,1);
-     uf5->set(m_pRenderParams->m_sunDirection );
+     uf5->set(m_pRenderParams->m_sunDirection );// 更新太阳方向
 
-     osg::Uniform* uf6 = ss->getOrCreateUniform(Param3Name,osg::Uniform::FLOAT_VEC4,1);
+   /*  osg::Uniform* uf6 = ss->getOrCreateUniform(Param3Name,osg::Uniform::FLOAT_VEC4,1);
      uf6->set(m_pRenderParams->m_phaseFunctionConsts );
 
-
+*/
      // shader constants -- night sky relevant constants
 	/*	osg::Vec3 nightSkyHorizonCol;
 		p3DEngine->GetGlobalParameter( E3DPARAM_NIGHSKY_HORIZON_COLOR, nightSkyHorizonCol );

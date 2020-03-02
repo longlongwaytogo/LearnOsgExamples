@@ -24,7 +24,7 @@ SkyLightManager::SkyLightManager(osgViewer::Viewer* viewer )
 , m_renderParams()
 {
 	//MEMSTAT_CONTEXT(EMemStatContextTypes::MSC_Other, 0, "SkyLightManager");
-    m_updateThread = new UpdateThread(this);
+    //m_updateThread = new UpdateThread(this);
 	InitSkyDomeMesh();
 
 	m_updateRequested[0] = m_updateRequested[1] = 0;
@@ -394,6 +394,7 @@ void UpdateThread::run()
     }
 }
 
+float g_angle = 90.0;
 
  bool SkyLightEventHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*) 
     {
@@ -420,10 +421,10 @@ void UpdateThread::run()
             {
  
                 // update sky param
-                std::cout << "left down" << std::endl;
-
-                //_sunDir.x()+= 0.2;
-                 _sunDir = osg::Vec3(1,1,0);
+                std::cout << "left down:" << g_angle << std::endl;
+                g_angle +=3.0;
+                float a = osg::DegreesToRadians(g_angle);
+                _sunDir = osg::Vec3(cos(a),0,sin(a));
                 _sunDir.normalize();
                 osg::Vec3 sunDir = _sunDir;
                 osg::Vec3 sunIntensity = osg::Vec3(200.0f, 200.0f, 20.0f );
@@ -439,9 +440,11 @@ void UpdateThread::run()
             }
             if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Right)
             {
-                   std::cout << "right down" << std::endl;
-
-                _sunDir = osg::Vec3(0,1,0);
+                   
+                g_angle -=3.0;
+                std::cout << "right down:" <<g_angle << std::endl;
+                float a = osg::DegreesToRadians(g_angle);
+                _sunDir = osg::Vec3(cos(a),0,sin(a));
                 _sunDir.normalize();
                 osg::Vec3 sunDir = _sunDir;
                 osg::Vec3 sunIntensity = osg::Vec3(200.0f, 200.0f, 20.0f );

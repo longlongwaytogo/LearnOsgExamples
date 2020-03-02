@@ -109,7 +109,7 @@ void main()
    vec4 vs_Position=  ftransform();//gl_ProjectionMatrix *viewMat * vPos;//_pos_Common(vPos); // 将坐标变换到投影空间mvp
  // vs_Position.z=vs_Position.w;
   gl_Position = vs_Position;
-  vec2 baseTC= vec2(gl_MultiTexCoord0.x,1-gl_MultiTexCoord0.y);
+  vec2 baseTC= vec2(gl_MultiTexCoord0.x,1-gl_MultiTexCoord0.y);//gl_MultiTexCoord0.xy;//
   vec2 moonTC=vec2(dot(SkyDome_NightMoonTexGenRight,vPos),dot(SkyDome_NightMoonTexGenUp,vPos))*SkyDome_NightMoonDirSize.w+0.5;
   vs_packedTC=vec4(baseTC,moonTC.yx);
   vs_skyDir=vPos;

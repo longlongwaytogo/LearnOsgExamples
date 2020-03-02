@@ -6,7 +6,7 @@
 // uniform vec3 SkyDome_NightSkyColBase;
 // uniform vec3 SkyDome_PhaseFunctionConstants;
 // uniform vec3 SkyDome_PartialRayleighInScatteringConst;
-// uniform vec3 SkyDome_SunDirection;
+ uniform vec4 SkyDome_SunDirection;
 // uniform vec3 SkyDome_NightSkyColDelta;
 // uniform vec3 SkyDome_NightMoonColor;
 //uniform vec4 g_PS_SunLightDir;
@@ -18,7 +18,7 @@
  vec3 SkyDome_NightSkyColBase = vec3(0,0,0);
  vec3 SkyDome_PhaseFunctionConstants = vec3(42.61117,42.61332,0.0);
  vec3 SkyDome_PartialRayleighInScatteringConst = vec3(0.00067,0.00167,0.00251);
- vec3 SkyDome_SunDirection = vec3(0,0,1);
+// vec3 SkyDome_SunDirection = vec3(0,0,1);
  vec3 SkyDome_NightSkyColDelta = vec3(0,0,0);
  vec3 SkyDome_NightMoonColor = vec3(0,0,0);
  vec4 g_PS_SunLightDir = vec4(0,0,1,1);
@@ -43,7 +43,7 @@ void main()
   vec4 ColorRayleigh=texture2D(skyDomeSamplerRayleigh,baseTC.xy);
   float miePart_g_2=SkyDome_PhaseFunctionConstants.x;
   float miePart_g2_1=SkyDome_PhaseFunctionConstants.y;
-  float cosine=-dot(SkyDome_SunDirection,skyDir);
+  float cosine=-dot(SkyDome_SunDirection.xyz,skyDir);
   float cosine2=cosine*cosine;
   float miePhase=(1.0+cosine2)*pow(miePart_g2_1+miePart_g_2*cosine,-1.5);
   float rayleighPhase=0.75*(1.0+cosine2);
