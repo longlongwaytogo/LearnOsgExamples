@@ -33,6 +33,8 @@ uniform sampler2D moonSampler;
 
 void main()
 {
+	//gl_FragColor = vec4(vs_skyDir,1.0);
+	//return;
   vec2 baseTC=vs_packedTC.xy;
   vec2 moonTC=vs_packedTC.wz;
   vec3 skyDir=normalize(vs_skyDir);

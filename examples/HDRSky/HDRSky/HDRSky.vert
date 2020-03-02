@@ -80,6 +80,7 @@
   // float4 vfColGradParams;
   // float3 vfColGradBase;
   
+  
   // uniform 
  vec3 SkyDome_NightMoonTexGenRight = vec3(0.25882,0.96593,0);
  vec3 SkyDome_NightMoonTexGenUp = vec3(-0.13443,0.03602,-0.99027);
@@ -91,7 +92,21 @@
 void main()
 {
   vec4 vPos= gl_Vertex;
-  vec4 vs_Position= gl_ProjectionMatrix * gl_ModelViewMatrix * vPos;//_pos_Common(vPos); // 将坐标变换到投影空间mvp
+  mat4 viewMat = gl_ModelViewMatrix;
+  // viewMat[3][0] = -viewMat[3][0];
+  // viewMat[3][1] = -viewMat[3][1];
+  // viewMat[3][2] = -viewMat[3][2];
+  // #if 1
+    // viewMat[3][0] = 0;
+  // viewMat[3][1] = 0;
+  // viewMat[3][2] = 0;
+ 
+  // #else
+  // viewMat[3][0] = 0;
+  // viewMat[3][1] = 0;
+  // viewMat[3][2] = 0;
+// #endif 
+   vec4 vs_Position=  ftransform();//gl_ProjectionMatrix *viewMat * vPos;//_pos_Common(vPos); // 将坐标变换到投影空间mvp
  // vs_Position.z=vs_Position.w;
   gl_Position = vs_Position;
   vec2 baseTC= gl_MultiTexCoord0.xy;

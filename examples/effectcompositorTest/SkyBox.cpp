@@ -7,7 +7,7 @@
 #include <osgUtil/CullVisitor>
 #include "SkyBox"
 
-SkyBox::SkyBox():m_scale(1000)
+SkyBox::SkyBox()
 {
     setReferenceFrame( osg::Transform::ABSOLUTE_RF );
     setCullingActive( false );
@@ -22,24 +22,24 @@ SkyBox::SkyBox():m_scale(1000)
 void SkyBox::setEnvironmentMap( unsigned int unit, osg::Image* posX, osg::Image* negX,
                                 osg::Image* posY, osg::Image* negY, osg::Image* posZ, osg::Image* negZ )
 {
-  //  if ( posX && posY && posZ && negX && negY && negZ )
-  //  {
-  //      osg::ref_ptr<osg::TextureCubeMap> cubemap = new osg::TextureCubeMap;
-  //      cubemap->setImage( osg::TextureCubeMap::POSITIVE_X, posX );
-  //      cubemap->setImage( osg::TextureCubeMap::NEGATIVE_X, negX );
-  //      cubemap->setImage( osg::TextureCubeMap::POSITIVE_Y, posY );
-  //      cubemap->setImage( osg::TextureCubeMap::NEGATIVE_Y, negY );
-  //      cubemap->setImage( osg::TextureCubeMap::POSITIVE_Z, posZ );
-  //      cubemap->setImage( osg::TextureCubeMap::NEGATIVE_Z, negZ );
+    if ( posX && posY && posZ && negX && negY && negZ )
+    {
+        osg::ref_ptr<osg::TextureCubeMap> cubemap = new osg::TextureCubeMap;
+        cubemap->setImage( osg::TextureCubeMap::POSITIVE_X, posX );
+        cubemap->setImage( osg::TextureCubeMap::NEGATIVE_X, negX );
+        cubemap->setImage( osg::TextureCubeMap::POSITIVE_Y, posY );
+        cubemap->setImage( osg::TextureCubeMap::NEGATIVE_Y, negY );
+        cubemap->setImage( osg::TextureCubeMap::POSITIVE_Z, posZ );
+        cubemap->setImage( osg::TextureCubeMap::NEGATIVE_Z, negZ );
 
-  //      cubemap->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE );
-  //      cubemap->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE );
-  //      cubemap->setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_EDGE );
-		//cubemap->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
-		//cubemap->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
-  //      cubemap->setResizeNonPowerOfTwoHint( false );
-  //      getOrCreateStateSet()->setTextureAttributeAndModes( unit, cubemap.get() );
-  //  }
+        cubemap->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE );
+        cubemap->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE );
+        cubemap->setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_EDGE );
+		cubemap->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR );
+		cubemap->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
+        cubemap->setResizeNonPowerOfTwoHint( false );
+        getOrCreateStateSet()->setTextureAttributeAndModes( unit, cubemap.get() );
+    }
 }
 
 bool SkyBox::computeLocalToWorldMatrix( osg::Matrix& matrix, osg::NodeVisitor* nv ) const
@@ -48,7 +48,6 @@ bool SkyBox::computeLocalToWorldMatrix( osg::Matrix& matrix, osg::NodeVisitor* n
     {
         osgUtil::CullVisitor* cv = static_cast<osgUtil::CullVisitor*>( nv );
         matrix.preMult( osg::Matrix::translate(cv->getEyeLocal()) );
-        matrix.preMult(osg::Matrix::scale(m_scale,m_scale,m_scale));
         return true;
     }
     else
@@ -61,7 +60,6 @@ bool SkyBox::computeWorldToLocalMatrix( osg::Matrix& matrix, osg::NodeVisitor* n
     {
         osgUtil::CullVisitor* cv = static_cast<osgUtil::CullVisitor*>( nv );
         matrix.postMult( osg::Matrix::translate(-cv->getEyeLocal()) );
-         matrix.postMult(osg::Matrix::scale(1/m_scale,1/m_scale,1/m_scale));
         return true;
     }
     else

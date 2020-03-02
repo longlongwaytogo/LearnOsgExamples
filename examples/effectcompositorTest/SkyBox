@@ -27,7 +27,6 @@ public:
     
 protected:
     virtual ~SkyBox() {}
-    float m_scale;
 };
 
 #endif

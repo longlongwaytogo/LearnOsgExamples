@@ -19,15 +19,6 @@
 #include "SkyBox"
 #include "EffectCompositor"
 
-#include "HDRSky/HDRSkyComm.h"
-#include "HDRSky/HDRSky.h"
-#include "HDRSky/SkyLightManager.h"
-#include "HDRSky/SkyLightNishita.h"
-
-#define HDRSKY 1
-
- osg::ref_ptr<SkyLightManager> g_skyLightManager;
-
 extern void configureViewerForMode( osgViewer::Viewer& viewer, osgFX::EffectCompositor* compositor,
                                     osg::Node* model, int displayMode );
 
@@ -101,7 +92,6 @@ osg::Node* createSkyBox( float radius )
 
 #endif
 
- 
 /* Shadowed scene */
 
 #define SHADOW_RECEIVE_MASK 0x1
@@ -141,9 +131,7 @@ int main( int argc, char** argv )
 {
     osg::ArgumentParser arguments( &argc, argv );
     osgViewer::Viewer viewer;
-    // Add all to the root node of the viewer
-    osg::ref_ptr<osg::Group> root = new osg::Group;
-
+    
     int displayMode = 1;
     if ( arguments.read("--simple-mode") ) displayMode = 0;
     else if ( arguments.read("--analysis-mode") ) displayMode = 1;
@@ -165,35 +153,11 @@ int main( int argc, char** argv )
     // Create the scene
     osg::Node* model = osgDB::readNodeFiles( arguments );
     if ( !model ) model = osgDB::readNodeFile( "lz.osg" );
-   // if ( !model ) model = osgDB::readNodeFile( "cow.osg" );
-
+    
     osg::ref_ptr<osg::Group> scene = new osg::Group;
-    if ( useSkyBox )
-    {
-#if !HDRSKY
-            scene->addChild( createSkyBox( model->getBound().radius() ) );
-#else
-         g_skyLightManager = new SkyLightManager(&viewer);
-         viewer.addEventHandler(new SkyLightEventHandler(g_skyLightManager));
-         
-        osg::ref_ptr<HDRSky> pHDRSky = new HDRSky();
-        if(pHDRSky)
-        {
-            UpdateTexCallBack* texCallback = new UpdateTexCallBack;
-            texCallback->setSkyLightManager(g_skyLightManager);
-            pHDRSky->addUpdateCallback(texCallback);
-            pHDRSky->m_pRenderParams = g_skyLightManager->GetRenderParams();
-           if( pHDRSky->IsEnableDebug())
-               root->addChild(pHDRSky->getDebugNode());
-            
-        }
-        scene->addChild(pHDRSky);
-#endif 
-    }
+    if ( useSkyBox ) scene->addChild( createSkyBox( model->getBound().radius() ) );
     scene->addChild( shadowed ? createShadowedScene(model) : model );
-    {
-
-    }
+    
     // Create the effect compositor from XML file
     osgFX::EffectCompositor* compositor = osgFX::readEffectFile( effectFile );
     if ( !compositor )
@@ -205,7 +169,8 @@ int main( int argc, char** argv )
     // For the fastest and simplest effect use, this is enough!
     compositor->addChild( scene.get() );
     
-    
+    // Add all to the root node of the viewer
+    osg::ref_ptr<osg::Group> root = new osg::Group;
     root->addChild( compositor );
     if ( !normalSceneFile.empty() )
     {

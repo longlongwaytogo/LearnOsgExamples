@@ -6,6 +6,8 @@
 #include <osg/Shader>
 #include <osgDB/ReadFile>
 #include <osg/Image>
+#include <osg/Depth>
+#include "../SkyBox"
 
 HDRSky::HDRSky()
 : m_pRenderParams(0)
@@ -14,6 +16,7 @@ HDRSky::HDRSky()
 //, m_pStars(0)
 , m_pSkyDomeTextureMie(0)
 , m_pSkyDomeTextureRayleigh(0)
+, m_bDebug(true)
 {
 /*	mfSetType(eDATA_HDRSky);
 	mfUpdateFlags(FCEF_TRANSFORM);*/
@@ -147,14 +150,20 @@ HDRSky::~HDRSky()
              osg::ref_ptr<osg::Texture2D> tex0 = new osg::Texture2D;
              osg::ref_ptr<osg::Texture2D> tex1 = new osg::Texture2D;
              osg::ref_ptr<osg::Texture2D> tex2 = new osg::Texture2D;
-             osg::Image* img0 = osgDB::readImageFile(texMie);
-             osg::Image* img1 = osgDB::readImageFile(texRayleigh);
-             osg::Image* img2 = osgDB::readImageFile(texMoom);
+            
+             osg::ref_ptr<osg::Image> img2 = osgDB::readImageFile(texMoom);
 
-            // tex0->setImage(img0);
-             //tex1->setImage(img1);
-             tex0 = m_pSkyDomeTextureMie;
-             tex1 = m_pSkyDomeTextureRayleigh;
+#if 0 // test default tex
+             osg::ref_ptr<osg::Image> img0 = osgDB::readImageFile(texMie);
+             osg::ref_ptr<osg::Image> img1 = osgDB::readImageFile(texRayleigh);
+             tex0->setImage(img0);
+             tex1->setImage(img1);
+            // tex0 = m_pSkyDomeTextureMie;
+             //tex1 = m_pSkyDomeTextureRayleigh;
+#else
+               tex0 = m_pSkyDomeTextureMie;
+               tex1 = m_pSkyDomeTextureRayleigh;
+#endif 
              tex2->setImage(img2);
          
             ss->setTextureAttributeAndModes(0,tex0.get(),osg::StateAttribute::ON|osg::StateAttribute::OVERRIDE);
@@ -172,6 +181,10 @@ HDRSky::~HDRSky()
                 ss->setAttribute(program);
 
             }
+           // osg::ref_ptr<osg::Depth> depth = new osg::Depth;
+           // depth->setRange(0.9,1.0);
+           // depth->setWriteMask(false);
+            //ss->setAttribute(depth);
             geode->setStateSet(ss);
         }
         return geode.release();
@@ -216,12 +229,16 @@ HDRSky::~HDRSky()
      /*osg::Geode* geode = CreateHDRSkyDome();
      addChild(geode);*/
     // addChild(createQuad());
+#if 1
      osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
      mt->setMatrix(osg::Matrix::scale(100,100,100));
+#else 
+ osg::ref_ptr<SkyBox> mt = new SkyBox;
+#endif 
      mt->addChild(CreateHDRSkyDome());
      addChild(mt);
     // if(m_bDebug)
-         m_debugNode = createDebugView();
+         m_debugNode =  createDebugView();//new osg::Node();//
      //addChild(m_debugNode.get());
     
 
@@ -459,6 +476,7 @@ HDRSky::~HDRSky()
      //camera->addChild( createScreenQuad(1.0, 1.0) );
      camera->addChild(texMieNode);
      camera->addChild(texRayleighNode);
+     camera->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF|osg::StateAttribute::OVERRIDE);
      texMieNode->getOrCreateStateSet()->setTextureAttributeAndModes(0,m_pSkyDomeTextureMie);
      texRayleighNode->getOrCreateStateSet()->setTextureAttributeAndModes(0,m_pSkyDomeTextureRayleigh);
 
