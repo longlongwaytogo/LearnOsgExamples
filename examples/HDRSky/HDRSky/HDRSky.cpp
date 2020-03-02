@@ -132,8 +132,11 @@ HDRSky::~HDRSky()
 	    //geo->setColorBinding(osg::Geometry::AttributeBinding::BIND_PER_VERTEX);//ÉèÖÃÑÕÉ«°ó¶¨
 
 	    geo->addPrimitiveSet(skyDomeIndiceArray);
-        
+#if 1
         geode->addDrawable(geo.get());
+#else
+           geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere()));
+#endif 
         {
            
            // geode->addDrawable(new osg::ShapeDrawable(new osg::Sphere()));
@@ -229,7 +232,7 @@ HDRSky::~HDRSky()
      /*osg::Geode* geode = CreateHDRSkyDome();
      addChild(geode);*/
     // addChild(createQuad());
-#if 1
+#if 0
      osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
      mt->setMatrix(osg::Matrix::scale(100,100,100));
 #else 
