@@ -1,11 +1,11 @@
 // uniform vec4 SkyDome_NightMoonOuterCoronaColorScale;
 // uniform vec4 SkyDome_NightMoonDirSize;
 // uniform vec2 SkyDome_NightSkyZenithColShift;
-// uniform vec3 SkyDome_PartialMieInScatteringConst;
+ uniform vec4 SkyDome_PartialMieInScatteringConst;
 // uniform vec4 SkyDome_NightMoonInnerCoronaColorScale;
 // uniform vec3 SkyDome_NightSkyColBase;
-// uniform vec3 SkyDome_PhaseFunctionConstants;
-// uniform vec3 SkyDome_PartialRayleighInScatteringConst;
+ //uniform vec3 SkyDome_PhaseFunctionConstants;
+ uniform vec4 SkyDome_PartialRayleighInScatteringConst;
  uniform vec4 SkyDome_SunDirection;
 // uniform vec3 SkyDome_NightSkyColDelta;
 // uniform vec3 SkyDome_NightMoonColor;
@@ -13,11 +13,11 @@
  vec4 SkyDome_NightMoonOuterCoronaColorScale = vec4(0,0,0,2001.0);
  vec4 SkyDome_NightMoonDirSize= vec4(0.35355,0.61237,0.70711,13.00);
  vec2 SkyDome_NightSkyZenithColShift = vec2(1.17647,0.11765);
- vec3 SkyDome_PartialMieInScatteringConst = vec3(0.00494,0.00494,0.00494);
+// vec3 SkyDome_PartialMieInScatteringConst = vec3(0.00494,0.00494,0.00494);
  vec4 SkyDome_NightMoonInnerCoronaColorScale =vec4(0.0,0.0,0.0,2001.0);
  vec3 SkyDome_NightSkyColBase = vec3(0,0,0);
  vec3 SkyDome_PhaseFunctionConstants = vec3(42.61117,42.61332,0.0);
- vec3 SkyDome_PartialRayleighInScatteringConst = vec3(0.00067,0.00167,0.00251);
+ //vec3 SkyDome_PartialRayleighInScatteringConst = vec3(0.00067,0.00167,0.00251);
 // vec3 SkyDome_SunDirection = vec3(0,0,1);
  vec3 SkyDome_NightSkyColDelta = vec3(0,0,0);
  vec3 SkyDome_NightMoonColor = vec3(0,0,0);
@@ -47,7 +47,7 @@ void main()
   float cosine2=cosine*cosine;
   float miePhase=(1.0+cosine2)*pow(miePart_g2_1+miePart_g_2*cosine,-1.5);
   float rayleighPhase=0.75*(1.0+cosine2);
-  Color.xyz=ColorMie.xyz*SkyDome_PartialMieInScatteringConst*miePhase+ColorRayleigh.xyz*SkyDome_PartialRayleighInScatteringConst*rayleighPhase;
+  Color.xyz=ColorMie.xyz*SkyDome_PartialMieInScatteringConst.xyz*miePhase+ColorRayleigh.xyz*SkyDome_PartialRayleighInScatteringConst.xyz*rayleighPhase;
   float gr=clamp(vs_skyDir.z*SkyDome_NightSkyZenithColShift.x+SkyDome_NightSkyZenithColShift.y,0.0,1.0);
   gr*=2-gr;
   Color.xyz+=SkyDome_NightSkyColBase+SkyDome_NightSkyColDelta*gr;

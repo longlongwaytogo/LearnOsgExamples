@@ -143,6 +143,10 @@ public:
 private:
     osg::ref_ptr<SkyLightManager> _skyLightManager;
     osg::Vec3 _sunDir;
+    osg::Vec3 _sunIntensity;
+    float _km;
+    float _kr;
+    float _g;
 };
 
 

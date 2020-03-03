@@ -28,6 +28,7 @@ add_subdirectory(SphereGlobal)
 add_subdirectory(HDRSky)
 add_subdirectory(DynamicImage)
 add_subdirectory(Ortho)
+add_subdirectory(osgkeyboard)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET_PROPERTY(TARGET BlockTest PROPERTY FOLDER "OpenThreads")

@@ -395,9 +395,13 @@ void UpdateThread::run()
 }
 
 float g_angle = 90.0;
+#include <osg/io_utils>
 
  bool SkyLightEventHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*) 
     {
+       
+      
+   
         if(ea.getEventType() == osgGA::GUIEventAdapter::KEYUP)
         {
 
@@ -407,56 +411,150 @@ float g_angle = 90.0;
                 std::cout << "update sky param" << std::endl;
 
                 osg::Vec3 sunDir = osg::Vec3( 0.0f, 0.707106f, 0.707106f );
-                osg::Vec3 sunIntensity = osg::Vec3(200.0f, 200.0f, 20.0f );
-                float km = 0.001f;
-                float kr = 0.00025f;
-                float g = -0.99f;
+                _sunIntensity = osg::Vec3(20.0f, 20.0f, 20.0f );
+                _km = 0.001f;
+                _kr = 0.00025f;
+                _g = -0.99f;
                 osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
                 bool bForceImmediateUpdate = true;
 
      
-                _skyLightManager->SetSkyLightParameters(sunDir,sunIntensity,km,kr,g,waveLength,bForceImmediateUpdate);
+                _skyLightManager->SetSkyLightParameters(sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
             }
             if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Left)
             {
  
                 // update sky param
-                std::cout << "left down:" << g_angle << std::endl;
+                std::cout << "x_z_left down:" << g_angle << std::endl;
                 g_angle +=3.0;
                 float a = osg::DegreesToRadians(g_angle);
                 _sunDir = osg::Vec3(cos(a),0,sin(a));
                 _sunDir.normalize();
                 osg::Vec3 sunDir = _sunDir;
-                osg::Vec3 sunIntensity = osg::Vec3(200.0f, 200.0f, 20.0f );
-                float km = 0.001f;
-                float kr = 0.00025f;
-                float g = -0.99f;
+               _sunIntensity = osg::Vec3(20.0f, 20.0f, 20.0f );
+               _km = 0.001f;
+               _kr = 0.00025f;
+               _g = -0.99f;
                 osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
                 bool bForceImmediateUpdate = true;
 
      
-                _skyLightManager->SetSkyLightParameters(sunDir,sunIntensity,km,kr,g,waveLength,bForceImmediateUpdate);
+                _skyLightManager->SetSkyLightParameters(sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
            
             }
             if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Right)
             {
                    
                 g_angle -=3.0;
-                std::cout << "right down:" <<g_angle << std::endl;
+                std::cout << "x_z_right down:" <<g_angle << std::endl;
                 float a = osg::DegreesToRadians(g_angle);
                 _sunDir = osg::Vec3(cos(a),0,sin(a));
                 _sunDir.normalize();
                 osg::Vec3 sunDir = _sunDir;
-                osg::Vec3 sunIntensity = osg::Vec3(200.0f, 200.0f, 20.0f );
-                float km = 0.001f;
-                float kr = 0.00025f;
-                float g = -0.99f;
+                _sunIntensity = osg::Vec3(20.0f, 20.0f, 20.0f );
+                _km = 0.001f;
+                _kr = 0.00025f;
+                _g = -0.99f;
                 osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
                 bool bForceImmediateUpdate = true;
 
      
-                _skyLightManager->SetSkyLightParameters(sunDir,sunIntensity,km,kr,g,waveLength,bForceImmediateUpdate);
+                _skyLightManager->SetSkyLightParameters(sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
 
+            }
+            if(ea.getKey() == osgGA::GUIEventAdapter::KEY_Z)
+            {
+                   _sunIntensity *=1.2;
+                   _km = 0.001f;
+                   _kr = 0.00025f;
+                   _g = -0.99f;
+                   osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                   bool bForceImmediateUpdate = true;
+
+                   _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                   std::cout << "sun Intensity" << _sunIntensity << std::endl;
+               }
+            else  if( ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT && ea.getUnmodifiedKey() == osgGA::GUIEventAdapter::KEY_Z )
+            {
+                   _sunIntensity /=1.2;
+                   _km = 0.001f;
+                   _kr = 0.00025f;
+                   _g = -0.99f;
+                   osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                   bool bForceImmediateUpdate = true;
+                   _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                   std::cout << "sun Intensity:" << _sunIntensity << std::endl;
+            
+            }
+
+            if(ea.getKey() == osgGA::GUIEventAdapter::KEY_X)
+            {
+                 
+                _km *=1.1;
+                _kr = 0.00025f;
+                _g = -0.99f;
+                osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                bool bForceImmediateUpdate = true;
+                _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                std::cout << "km:" << _km << std::endl;
+
+            }
+            else if(ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT && ea.getUnmodifiedKey() == osgGA::GUIEventAdapter::KEY_X)
+            {
+                _km /=1.1;
+                
+               // _kr = 0.00025f;
+               // _g = -0.99f;
+                osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                bool bForceImmediateUpdate = true;
+                _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                std::cout << "km:" << _km << std::endl;
+
+            }
+
+            if(ea.getKey() == osgGA::GUIEventAdapter::KEY_C)
+            {
+                _kr *=1.1;
+               // _kr = 0.00025f;
+                //_g = -0.99f;
+                osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                bool bForceImmediateUpdate = true;
+                _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                std::cout << "kr:" << _kr << std::endl;
+
+            }
+            else if(ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT && ea.getUnmodifiedKey() == osgGA::GUIEventAdapter::KEY_C)
+            {
+                _kr /=1.1;
+                 
+                osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                bool bForceImmediateUpdate = true;
+                _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                std::cout << "kr:" << _kr << std::endl;
+
+            }
+
+            if(ea.getKey() == osgGA::GUIEventAdapter::KEY_V)
+            {
+
+                _g *=1.1;
+                // _kr = 0.00025f;
+                //_g = -0.99f;
+                osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                bool bForceImmediateUpdate = true;
+                _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
+                std::cout << "g:" << _g << std::endl;
+
+
+            }
+            else if(ea.getModKeyMask() & osgGA::GUIEventAdapter::MODKEY_SHIFT && ea.getUnmodifiedKey() == osgGA::GUIEventAdapter::KEY_V)
+            {
+                _g /=1.1;
+
+                osg::Vec3 waveLength = osg::Vec3(650.0f, 570.0f, 475.0f );
+                bool bForceImmediateUpdate = true;
+                std::cout << "g:" << _g << std::endl;
+                _skyLightManager->SetSkyLightParameters(_sunDir,_sunIntensity,_km,_kr,_g,waveLength,bForceImmediateUpdate);
             }
 
         }
