@@ -1,0 +1,2 @@
+SET(TARGET_NAME Sphere)
+ADD_EXECUTABLE(${TARGET_NAME} main.cpp)
