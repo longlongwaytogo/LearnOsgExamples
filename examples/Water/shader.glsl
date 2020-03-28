@@ -16,19 +16,19 @@ const float EPSILON	= 1e-1;
 float EPSILON_NRM	= 0.;
 
 // sea
-const int ITER_GEOMETRY = 3;
-const int ITER_FRAGMENT = 5;
-const float SEA_HEIGHT = 0.6;
-const float SEA_CHOPPY = 4.0;
-const float SEA_SPEED = 0.9;
-const float SEA_FREQ = 0.18;
+const int ITER_GEOMETRY = 3; //几何
+const int ITER_FRAGMENT = 5; //片段
+const float SEA_HEIGHT = 0.6; //海面豪赌
+const float SEA_CHOPPY = 4.0; 
+const float SEA_SPEED = 0.9; // 海水速度
+const float SEA_FREQ = 0.18; // 频率
 const vec3 SEA_BASE = vec3(0.1,0.19,0.22);
 const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
 float SEA_TIME = 0.;
 mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
 
 // math
-mat3 fromEuler(vec3 ang) {
+mat3 fromEuler(vec3 ang) { // 从欧拉角转换为旋转矩阵
 	vec2 a1 = vec2(sin(ang.x),cos(ang.x));
     vec2 a2 = vec2(sin(ang.y),cos(ang.y));
     vec2 a3 = vec2(sin(ang.z),cos(ang.z));
@@ -192,10 +192,11 @@ void main( void ) {
    
 	 
 	 #endif 
-    // ray
-    vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);    
+    // ray 计算射线
+    vec3 ang = vec3(sin(time*3.0)*0.1,sin(time)*0.2+0.3,time);    // 根据时间随机生成角度
     vec3 ori = vec3(0.0,3.5,time*5.0);
-    vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.1;
+    vec3 dir = normalize(vec3(uv.xy,-2.0));
+	dir.z += length(uv) * 0.1;
     dir = normalize(dir) * fromEuler(ang);
     
     // tracing

@@ -49,7 +49,7 @@ LINK_DIRECTORIES(
 	 
 
 
-MESSAGE(${OSGLIBPATH})
+MESSAGE("${OSGLIBPATH}")
 MESSAGE(-----------------------------------)
 MESSAGE(${OPENSCENEGRAPH_INCLUDE_DIRS})
 MESSAGE(-----------------------------------)
