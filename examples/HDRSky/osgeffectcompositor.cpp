@@ -153,7 +153,9 @@ int main( int argc, char** argv )
     arguments.read( "--effect", effectFile );
     
     bool useSkyBox = false, shadowed = false;
+    bool useHDRSkyBox = false;
     if ( arguments.read("--skybox") ) useSkyBox = true;
+    if( arguments.read("--hdrskybox")) useHDRSkyBox = true;
     if ( arguments.read("--shadowed") ) shadowed = true;
     
     float lodscale = 1.0f;
@@ -170,8 +172,12 @@ int main( int argc, char** argv )
     osg::ref_ptr<osg::Group> scene = new osg::Group;
     if ( useSkyBox )
     {
+         scene->addChild( createSkyBox( model->getBound().radius() ) );
+    }
+    if(useHDRSkyBox)
+    { 
 #if !HDRSKY
-            scene->addChild( createSkyBox( model->getBound().radius() ) );
+         //   scene->addChild( createSkyBox( model->getBound().radius() ) );
 #else
          g_skyLightManager = new SkyLightManager(&viewer);
          viewer.addEventHandler(new SkyLightEventHandler(g_skyLightManager));
@@ -205,8 +211,8 @@ int main( int argc, char** argv )
     // For the fastest and simplest effect use, this is enough!
     compositor->addChild( scene.get() );
     
-    
     root->addChild( compositor );
+  //  root->addChild(scene);
     if ( !normalSceneFile.empty() )
     {
         // FIXME: Disable near/far computing here; otherwise the scene with effects will

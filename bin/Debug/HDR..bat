@@ -1,0 +1,1 @@
+HDRSky.exe --skybox --effect F:\Project\2018\LearnOsgExamples\examples\HDRSky\hdr.xml
