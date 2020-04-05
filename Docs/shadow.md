@@ -63,3 +63,6 @@ XPSM: Extended Perspective Shadow Maps
 12. [《GPU Gems 3》Chapter 10](https://www.cnblogs.com/pulas/archive/2012/02/02/2335593.html)
 13. [osg document](https://codedocs.xyz/openscenegraph/OpenSceneGraph/a05094.html)
 
+14. [openmw](https://forum.openmw.org/viewtopic.php?t=4417)
+15. [wangRui_shadow_discuss](https://groups.google.com/forum/#!topic/osg-users/-TFd2yzzgro)
+16. [CryEngine3_shadow paper](https://www.realtimeshadows.com/sites/default/files/Playing%20with%20Real-Time%20Shadows_0.pdf)
