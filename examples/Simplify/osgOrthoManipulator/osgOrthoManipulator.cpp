@@ -7,8 +7,8 @@
 using namespace osgGA;
 
 OrthoManipulator::OrthoManipulator(osgViewer::Viewer* viewer, osg::Node* root)
-    : _viewer(viewer), _scaleRatio(1.0)
-    , _zoom_radio(0.9), _root(root), _eye(0, 0, 1000)
+    : _viewer(viewer), _scaleRatio(/*1.0*/0.05)
+    , _zoom_radio(0.9), _root(root), _eye(0, 0, 100)
 {
     setName("ortho");
 }
@@ -106,7 +106,7 @@ void OrthoManipulator::home( double )
     double ratio = maxSize/double(minWidth);
 
     _scaleRatio = ratio;
-    _eye = bounding.center() + osg::Vec3d(0, 0, 1000);
+    _eye = bounding.center() + osg::Vec3d(0, 0, 100);
 }
 
 void OrthoManipulator::zoomOn( const osgGA::GUIEventAdapter& ea )
