@@ -29,6 +29,8 @@ add_subdirectory(HDRSky)
 add_subdirectory(DynamicImage)
 add_subdirectory(Ortho)
 add_subdirectory(osgkeyboard)
+
+
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET_PROPERTY(TARGET BlockTest PROPERTY FOLDER "OpenThreads")
@@ -36,3 +38,8 @@ SET_PROPERTY(TARGET BarrierTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET MutexTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET GetThreadTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET BlockCountTest PROPERTY FOLDER "OpenThreads")
+
+add_subdirectory(Simplify\\osgImposter)
+add_subdirectory(Simplify\\osgOrthoManipulator)
+SET_PROPERTY(TARGET osgImposter PROPERTY FOLDER "Simplify")
+SET_PROPERTY(TARGET osgOrthoManipulator PROPERTY FOLDER "Simplify")

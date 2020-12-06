@@ -76,6 +76,7 @@ ${OSGFX_LIBRARIES}
  )
  
 
+
 # examples
 ADD_SUBDIRECTORY(examples)
 
