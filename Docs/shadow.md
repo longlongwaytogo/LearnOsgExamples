@@ -63,10 +63,11 @@ XPSM: Extended Perspective Shadow Maps
 12. [《GPU Gems 3》Chapter 10](https://www.cnblogs.com/pulas/archive/2012/02/02/2335593.html)
 13. [osg document](https://codedocs.xyz/openscenegraph/OpenSceneGraph/a05094.html)
 
+14. [openmw](https://forum.openmw.org/viewtopic.php?t=4417)
+15. [wangRui_shadow_discuss](https://groups.google.com/forum/#!topic/osg-users/-TFd2yzzgro)
+16. [CryEngine3_shadow paper](https://www.realtimeshadows.com/sites/default/files/Playing%20with%20Real-Time%20Shadows_0.pdf)
 
 [Cascaded Shadow Maps(CSM)实时阴影的原理与实现](https://zhuanlan.zhihu.com/p/53689987)
 [nv-csm](https://developer.download.nvidia.cn/SDK/10.5/opengl/src/cascaded_shadow_maps/doc/cascaded_shadow_maps.pdf)
 [Directx11进阶教程之CascadeShadowMap(层级阴影)(上)](https://blog.csdn.net/qq_29523119/article/details/79266293)
 [SDENGINE](https://github.com/2047241149/SDEngine)
- 
-
