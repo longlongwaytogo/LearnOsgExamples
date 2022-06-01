@@ -1,7 +1,16 @@
-
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 PROJECT(LearnOsgExamples)
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+
+option(use_gl3 "use gl3" ON)
+
+cmake_policy(SET CMP0074 NEW)
+
+set(OpenSceneGraph_ROOT "" CACHE PATH "osg root path")
+set(OpenSceneGraph_BINARY_ROOT "" CACHE PATH "osg binary root path")
 
 SET( include_dir "")
 
@@ -13,24 +22,27 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #LIBRARY_OUTPUT_PATH
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-FIND_PACKAGE(OpensceneGraph 3.4.0 REQUIRED openThreads osgDB osgUtil osgViewer osg  osgText osgGA)
+FIND_PACKAGE(OpensceneGraph  COMPONENTS openThreads osgDB osgUtil osgViewer osg  osgText osgGA)
 
-IF(OPENSCENEGRAPH_FOUND)
-	MESSAGE("is openscengraph found:${OPENSCENEGRAPH_FOUND}")
+IF(NOT OPENSCENEGRAPH_FOUND)
+include(${CMAKE_CURRENT_SOURCE_DIR}/findCustomOSG.cmake)
+	MESSAGE("------------------is openscengraph found:${OPENSCENEGRAPH_FOUND}")
+ELSE()
+	MESSAGE("------------------is openscengraph found:${OPENSCENEGRAPH_FOUND}")
 ENDIF()
- find_package(osgViewer)
- find_package(osgText)
- find_package(osgUtil)
- find_package(osgDB)
- find_package(osgGA)
- find_package(osgManipulator)
- find_package(osgVolume)
- find_package(openThreads)
- find_package(osgShadow)
- FIND_PACKAGE(osgFX)
+ # find_package(osgViewer)
+ # find_package(osgText) 	
+ # find_package(osgUtil)
+ # find_package(osgDB)
+ # find_package(osgGA)
+ # find_package(osgManipulator)
+ # find_package(osgVolume)
+ # find_package(openThreads)
+ # find_package(osgShadow)
+ # FIND_PACKAGE(osgFX)
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include") 
-INCLUDE_DIRECTORIES(${OPENSCENEGRAPH_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${OPENSCENEGRAPH_INCLUDE_DIRS} ${OpenSceneGraph_BINARY_ROOT}/include)
 
 Set(OSGLIBPATH ""  CACHE FILEPATH "")
 LINK_DIRECTORIES(
@@ -51,14 +63,14 @@ LINK_DIRECTORIES(
 
 MESSAGE("${OSGLIBPATH}")
 MESSAGE(-----------------------------------)
-MESSAGE(${OPENSCENEGRAPH_INCLUDE_DIRS})
+MESSAGE("${OPENSCENEGRAPH_INCLUDE_DIRS}")
 MESSAGE(-----------------------------------)
-MESSAGE(${OPENSCENEGRAPH_LIBRARIES})
+MESSAGE("${OPENSCENEGRAPH_LIBRARIES}")
 MESSAGE(-----------------------------------)
 # MESSAGE( ${OPENTHREADS_LIBRARIES_DIRS} )
 
 MESSAGE("LINK_LIB")
-MESSAGE(${OPENSCENEGRAPH_LIBRARIES})
+MESSAGE("${OPENSCENEGRAPH_LIBRARIES}")
 
 LINK_LIBRARIES(${OPENSCENEGRAPH_LIBRARIES})
 
