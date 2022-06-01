@@ -22,10 +22,10 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 #LIBRARY_OUTPUT_PATH
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-FIND_PACKAGE(OpensceneGraph  COMPONENTS openThreads osgDB osgUtil osgViewer osg  osgText osgGA)
+FIND_PACKAGE(OpensceneGraph  COMPONENTS osg osgDB osgUtil osgViewer osgText osgGA osgManipulator osgVolume)
 
-IF(NOT OPENSCENEGRAPH_FOUND)
 include(${CMAKE_CURRENT_SOURCE_DIR}/findCustomOSG.cmake)
+IF(NOT OPENSCENEGRAPH_FOUND)
 	MESSAGE("------------------is openscengraph found:${OPENSCENEGRAPH_FOUND}")
 ELSE()
 	MESSAGE("------------------is openscengraph found:${OPENSCENEGRAPH_FOUND}")

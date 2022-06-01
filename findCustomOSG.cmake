@@ -3,13 +3,14 @@
 # pre def 
 # ${OpenSceneGraph_ROOT}
 # ${OpenSceneGraph_BINARY_ROOT}
+include(SelectLibraryConfigurations)
+include(FindPackageHandleStandardArgs)
 
 set(ExtDir ${OpenSceneGraph_ROOT} ${OpenSceneGraph_BINARY_ROOT})
 set(ExtLibDebugDir lib lib/win64_d lib/x64_d lib/Debug)
 set(ExtLibReleaseDir lib lib/win64 lib/x64 lib/Release)
 
-include(SelectLibraryConfigurations)
-include(FindPackageHandleStandardArgs)
+
 
 #[=======================================================================[.rst:
 
@@ -93,64 +94,6 @@ function(OSG_MARK_AS_ADVANCED _module)
   mark_as_advanced(${_module_UC}_LIBRARY)
   mark_as_advanced(${_module_UC}_LIBRARY_DEBUG)
 endfunction()
-
-
-# find openthread
-find_path(OPENTHREADS_INCLUDE_DIR OpenThreads/Thread
-    HINTS
-        ENV OPENTHREADS_INCLUDE_DIR
-        ENV OPENTHREADS_DIR
-        ENV OSG_INCLUDE_DIR
-        ENV OSG_DIR
-        ENV OSGDIR
-        ENV OpenThreads_ROOT
-        ENV OSG_ROOT
-        ${OPENTHREADS_DIR}
-        ${OSG_DIR}
-		${ExtDir}
-    PATH_SUFFIXES include 
-)
-
-MESSAGE("opentrhead:${OPENTHREADS_INCLUDE_DIR}")
-
-find_library(OPENTHREADS_LIBRARY_RELEASE
-    NAMES OpenThreads OpenThreadsWin32
-    HINTS
-        ENV OPENTHREADS_LIBRARY_DIR
-        ENV OPENTHREADS_DIR
-        ENV OSG_LIBRARY_DIR
-        ENV OSG_DIR
-        ENV OSGDIR
-        ENV OpenThreads_ROOT
-        ENV OSG_ROOT
-        ${OPENTHREADS_DIR}
-        ${OSG_DIR}
-		${ExtDir}
-    PATH_SUFFIXES ${ExtLibReleaseDir}
-)
-MESSAGE("opentrhead release:${ExtLibReleaseDir}---${OPENTHREADS_LIBRARY_RELEASE}")
-
-find_library(OPENTHREADS_LIBRARY_DEBUG
-    NAMES OpenThreadsd OpenThreadsWin32d
-    HINTS
-        ENV OPENTHREADS_DEBUG_LIBRARY_DIR
-        ENV OPENTHREADS_LIBRARY_DIR
-        ENV OPENTHREADS_DIR
-        ENV OSG_LIBRARY_DIR
-        ENV OSG_DIR
-        ENV OSGDIR
-        ENV OpenThreads_ROOT
-        ENV OSG_ROOT
-        ${OPENTHREADS_DIR}
-        ${OSG_DIR}
-		${ExtDir}
-    PATH_SUFFIXES ${ExtLibDebugDir}
-)
-
-select_library_configurations(OPENTHREADS)
-
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(OpenThreads DEFAULT_MSG
-    OPENTHREADS_LIBRARY OPENTHREADS_INCLUDE_DIR)
 
 
 # find osg 
@@ -258,3 +201,87 @@ OSG_FIND_LIBRARY(OSGWIDGET osgWidget)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(osgWidget DEFAULT_MSG
     OSGWIDGET_LIBRARY OSGWIDGET_INCLUDE_DIR)
+
+# find openthread
+find_path(OPENTHREADS_INCLUDE_DIR OpenThreads/Thread
+    HINTS
+        ENV OPENTHREADS_INCLUDE_DIR
+        ENV OPENTHREADS_DIR
+        ENV OSG_INCLUDE_DIR
+        ENV OSG_DIR
+        ENV OSGDIR
+        ENV OpenThreads_ROOT
+        ENV OSG_ROOT
+        ${OPENTHREADS_DIR}
+        ${OSG_DIR}
+		${ExtDir}
+    PATH_SUFFIXES include 
+)
+
+#MESSAGE("opentrhead:${OPENTHREADS_INCLUDE_DIR}")
+
+find_library(OPENTHREADS_LIBRARY_RELEASE
+    NAMES OpenThreads OpenThreadsWin32
+    HINTS
+        ENV OPENTHREADS_LIBRARY_DIR
+        ENV OPENTHREADS_DIR
+        ENV OSG_LIBRARY_DIR
+        ENV OSG_DIR
+        ENV OSGDIR
+        ENV OpenThreads_ROOT
+        ENV OSG_ROOT
+        ${OPENTHREADS_DIR}
+        ${OSG_DIR}
+		${ExtDir}
+    PATH_SUFFIXES ${ExtLibReleaseDir}
+)
+#MESSAGE("opentrhead release:${ExtLibReleaseDir}---${OPENTHREADS_LIBRARY_RELEASE}")
+
+find_library(OPENTHREADS_LIBRARY_DEBUG
+    NAMES OpenThreadsd OpenThreadsWin32d
+    HINTS
+        ENV OPENTHREADS_DEBUG_LIBRARY_DIR
+        ENV OPENTHREADS_LIBRARY_DIR
+        ENV OPENTHREADS_DIR
+        ENV OSG_LIBRARY_DIR
+        ENV OSG_DIR
+        ENV OSGDIR
+        ENV OpenThreads_ROOT
+        ENV OSG_ROOT
+        ${OPENTHREADS_DIR}
+        ${OSG_DIR}
+		${ExtDir}
+    PATH_SUFFIXES ${ExtLibDebugDir}
+)
+
+select_library_configurations(OPENTHREADS)
+
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(OpenThreads DEFAULT_MSG
+    OPENTHREADS_LIBRARY OPENTHREADS_INCLUDE_DIR)
+	
+#IF(NOT OPENSCENEGRAPH_INC_DIRS)
+set(OPENSCENEGRAPH_INC_DIRS ${OPENSCENEGRAPH_INC_DIR} ${OpenSceneGraph_ROOT}/include ${OpenSceneGraph_BINARY_ROOT}/include)
+#ENDIF()
+#IF(NOT OPENSCENEGRAPH_LIBRARIES)
+SET(OPENSCENEGRAPH_LIBRARIES 
+${OSG_LIBRARIES}
+${OSGDB_LIBRARIES}
+${OSGVIEWER_LIBRARIES}
+${OSGGA_LIBRARIES}
+${OSGUTIL_LIBRARIES}
+${OSGFX_LIBRARIES}
+${OSGMANIPULATOR_LIBRARIES}
+${OSGANIMATION_LIBRARIES}
+${OSGTERRAIN_LIBRARIES}
+${OSGPARTICLE_LIBRARIES}
+${OPENTHREADS_LIBRARIES}
+${OSGTEXT_LIBRARIES}
+${OSGSHADOW_LIBRARIES}
+${OSGSIM_LIBRARIES}
+${OSGWIDGET_LIBRARIES}
+)
+#ENDIF()
+MESSAGE("${OSGFX_LIBRARIES}")
+MESSAGE("${OSGUTIL_LIBRARIES}")
+MESSAGE("----lib:${OPENSCENEGRAPH_LIBRARIES}")
+MESSAGE("----inc:${OPENSCENEGRAPH_INC_DIRS}")
