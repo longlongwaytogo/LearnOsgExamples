@@ -1,3 +1,7 @@
+
+
+SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+
 add_subdirectory(test0)
 add_subdirectory(text)
 add_subdirectory(TextureColor)
@@ -17,7 +21,7 @@ ADD_SUBDIRECTORY(kornerr-osg-deferred-shading)
 add_subdirectory(deferredShading)
 add_subdirectory(EffectCompositor)
 add_subdirectory(effectcompositorTest)
-add_subdirectory(osgGL3)
+
 add_subdirectory(Draw2D)
 add_subdirectory(osgCascadeShadowMap)
 add_subdirectory(Water)
@@ -31,13 +35,18 @@ add_subdirectory(Ortho)
 add_subdirectory(osgkeyboard)
 
 
-SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET_PROPERTY(TARGET BlockTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET BarrierTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET MutexTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET GetThreadTest PROPERTY FOLDER "OpenThreads")
 SET_PROPERTY(TARGET BlockCountTest PROPERTY FOLDER "OpenThreads")
+
+if(${use_gl3})
+add_subdirectory(FrusturmOrtho)
+add_subdirectory(osgGL3)
+add_subdirectory(GL3/computeShader)
+endif()
 
 add_subdirectory(Simplify\\osgImposter)
 add_subdirectory(Simplify\\osgOrthoManipulator)
