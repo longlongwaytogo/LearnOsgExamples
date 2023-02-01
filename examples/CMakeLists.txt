@@ -2,6 +2,10 @@
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
+add_custom_target(examples_cmake  SOURCES ${CMAKE_SOURCE_DIR}/examples/CMakeLists.txt)
+
+set_property(TARGET examples_cmake PROPERTY  FOLDER CMakePredefinedTargets)
+
 add_subdirectory(test0)
 add_subdirectory(text)
 add_subdirectory(TextureColor)
@@ -34,6 +38,9 @@ add_subdirectory(DynamicImage)
 add_subdirectory(Ortho)
 add_subdirectory(osgkeyboard)
 
+add_subdirectory(modelOper/ModelMove)
+add_subdirectory(modelOper/ModelManipulator) 
+add_subdirectory(modelOper/MouseZoom)
 
 
 SET_PROPERTY(TARGET BlockTest PROPERTY FOLDER "OpenThreads")

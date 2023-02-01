@@ -1,0 +1,8 @@
+#add_executable(computeShaderTest main.cpp)
+#SET_PROPERTY(TARGET computeShaderTest PROPERTY FOLDER "gl3")
+set(TargetName ComputeShaderTest)
+add_executable(${TargetName} main.cpp)
+#GENERATE_TEST_EXE( ${TargetName} )
+set_target_properties(${TargetName} PROPERTIES VS_DEBUGGER_ENVIRONMENT "${MY_PATH}")
+add_definitions(-DShaderPath="${CMAKE_CURRENT_SOURCE_DIR}")
+SET_PROPERTY(TARGET ComputeShaderTest PROPERTY FOLDER "gl3")
