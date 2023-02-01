@@ -12,9 +12,12 @@ cmake_policy(SET CMP0074 NEW)
 set(OpenSceneGraph_ROOT "" CACHE PATH "osg root path")
 set(OpenSceneGraph_BINARY_ROOT "" CACHE PATH "osg binary root path")
 
-SET( include_dir "")
-
-
+set( include_dir "")
+set(MY_PATH ""  CACHE FILEPATH "")
+set(MY_CUSTOM_PATH ${OpenSceneGraph_BINARY_ROOT}/bin)
+set(QT_BIN_DIR "${QT_DIR}/../../../bin/")
+message(STATUS ${QT_BIN_DIR})
+set(MY_PATH "PATH=%PATH%" ${MY_CUSTOM_PATH} ${QT_BIN_DIR})
 
 #EXECUTABLE_OUTPUT_PATH
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -57,9 +60,7 @@ LINK_DIRECTORIES(
 	${OSGSHADOW_LIBRARIES_DIRS}
 	${OSGFX_LIBRARIES_DIRS}
 	${OSGLIBPATH}
-	 )
-	 
-
+	 ) 
 
 MESSAGE("${OSGLIBPATH}")
 MESSAGE(-----------------------------------)
@@ -68,11 +69,12 @@ MESSAGE(-----------------------------------)
 MESSAGE("${OPENSCENEGRAPH_LIBRARIES}")
 MESSAGE(-----------------------------------)
 # MESSAGE( ${OPENTHREADS_LIBRARIES_DIRS} )
-
 MESSAGE("LINK_LIB")
 MESSAGE("${OPENSCENEGRAPH_LIBRARIES}")
 
 LINK_LIBRARIES(${OPENSCENEGRAPH_LIBRARIES})
+
+ 
 
 link_libraries(
 ${OSG_LIBRARIES}
@@ -93,5 +95,4 @@ ${OSGFX_LIBRARIES}
 ADD_SUBDIRECTORY(examples)
 
  
-
-
+ 
