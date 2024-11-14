@@ -845,7 +845,7 @@ osg::Shader* EffectCompositor::createShaderFromXML( osgDB::XmlNode* xmlNode, boo
             else
             {
                 filePath = osgDB::getFilePath( shaderFile );
-                shader->loadShaderSourceFromFile( shaderFile );
+                shader = osgDB::readShaderFile( shaderFile );
             }
         }
         else

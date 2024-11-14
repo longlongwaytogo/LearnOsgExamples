@@ -47,10 +47,10 @@ int main()
     for(int i = 0; i< 2; ++i)
         for(int j = 0; j <1; ++j)
         {
-            osg::ref_ptr<osg::MatrixTransform> transfrom = new osg::MatrixTransform();
+     /*       osg::ref_ptr<osg::MatrixTransform> transfrom = new osg::MatrixTransform();
             transfrom->addChild(pNode);
-            transfrom->setMatrix(osg::Matrix::translate(osg::Vec3(10*i,10*j,0)));
-            root->addChild(transfrom);
+            transfrom->setMatrix(osg::Matrix::translate(osg::Vec3(10*i,10*j,0)));*/
+           // root->addChild(transfrom);
 
         }
 	
@@ -86,6 +86,7 @@ int main()
 	osg::ref_ptr<osg::Camera> pCamera = new osg::Camera();
 	pCamera->setClearColor(osg::Vec4(0.1f,0.1f,0.3f,1.0f));
 	pCamera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	pCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	pCamera->setViewport(0,0,nWidth,nHeight);
 	pCamera->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
@@ -121,7 +122,8 @@ int main()
 	// set view
 	pCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	pCamera->setViewMatrixAsLookAt(bs.center()-osg::Vec3(0.0f,2.0f,0.0f)*bs.radius(),bs.center(),osg::Vec3(0.0f,0.0f,1.0f));
-
+	// tell the camera to use OpenGL frame buffer object where supported.
+	
 	root->addChild(pCamera);
 
 	if(root)

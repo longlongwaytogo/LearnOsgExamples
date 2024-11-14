@@ -7,6 +7,7 @@ add_custom_target(examples_cmake  SOURCES ${CMAKE_SOURCE_DIR}/examples/CMakeList
 set_property(TARGET examples_cmake PROPERTY  FOLDER CMakePredefinedTargets)
 
 add_subdirectory(test0)
+add_subdirectory(MultiSample)
 add_subdirectory(text)
 add_subdirectory(TextureColor)
 add_subdirectory(CameraTest)

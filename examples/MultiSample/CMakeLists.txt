@@ -1,0 +1,4 @@
+SET(TARGET_NAME MultiSample)
+
+ADD_EXECUTABLE(${TARGET_NAME} main.cpp)
+
