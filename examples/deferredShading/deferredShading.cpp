@@ -216,9 +216,9 @@
     {
         osg::ref_ptr<osg::Program> program = new osg::Program;
         osg::Shader* vertShader = new osg::Shader(osg::Shader::VERTEX);
-        vertShader->loadShaderSourceFromFile(vert);
+        vertShader = osgDB::readShaderFile(vert);
         osg::Shader* fragShader = new osg::Shader(osg::Shader::FRAGMENT);
-        fragShader->loadShaderSourceFromFile(frag);
+        fragShader = osgDB::readShaderFile(frag);
 
         program->addShader(vertShader);
         program->addShader(fragShader);
